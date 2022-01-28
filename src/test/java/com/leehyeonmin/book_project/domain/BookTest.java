@@ -50,7 +50,7 @@ public class BookTest {
 
     @Test
 //    @Transactional
-    public void bookAndPublisherTest(){
+    public void bookAndPublisherTest(){ //ManyToOne에서 CascadeType.ALL 해주면, many에서 수정하면 one에서도 수정되어 DB에 반영
         Publisher publisher = new Publisher();
         publisher.setName("현민출판사");
 //        publisherRepository.save(publisher);
@@ -61,6 +61,7 @@ public class BookTest {
 
 //        publisher.addBooks(book);
         book.setPublisher(publisher);
+        book.setStatus(300);
 
         bookRepository.save(book);
 //        publisherRepository.save(publisher);
@@ -70,8 +71,16 @@ public class BookTest {
 
         books.forEach(System.out::println);
         System.out.println(publisherResult);
+        System.out.println(bookRepository.findRawRecord().values());
+    }
 
+    @Test
+    public void sofeDeletedTest(){
+        Book book1 = givenBook();
+        Book book2 = givenBook();
 
+        List<Book> books = bookRepository.findAll();
+        books.forEach(System.out::println);
     }
 
 

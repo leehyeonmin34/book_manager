@@ -86,6 +86,16 @@ public class UserTest {
 
     }
 
+    @Test
+    void embeddingTest(){
+        User user = givenUser();
+        user.setHomeAddress(new Address("사랑시", "고백구", "행복동 36-5", "01232"));
+        user.setCompanyAddress(new Address("서울시", "강남구", "최고동 21-2", "22241"));
+        User result = userRepository.save(user);
+        System.out.println(result);
+    }
+
+
 
 
 }

@@ -30,6 +30,11 @@ public class Book extends BaseEntity{
         Collections.addAll(this.bookAndAuthors, bookAndAuthors);
     }
 
+    private BookStatus status = new BookStatus();
+
+    public void setStatus(int code){
+        this.status.setBookStatus(code);
+    }
 
     @ManyToOne(cascade = CascadeType.ALL)
     private Publisher publisher;

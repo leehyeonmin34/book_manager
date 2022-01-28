@@ -1,2 +1,6 @@
-package com.leehyeonmin.book_project.domain;public class Gender {
+package com.leehyeonmin.book_project.domain;
+
+public enum Gender {
+    MALE,
+    FEMALE
 }

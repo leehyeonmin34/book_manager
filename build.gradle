@@ -25,15 +25,25 @@ dependencies {
 	runtimeOnly 'com.h2database:h2'
 	runtimeOnly 'mysql:mysql-connector-java'
 	annotationProcessor 'org.projectlombok:lombok'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testCompileOnly 'org.projectlombok:lombok' // 테스트 의존성 추가
+	testAnnotationProcessor 'org.projectlombok:lombok' // 테스트 의존성 추가
+	testImplementation 'org.springframework.boot:spring-boot-starter-test' // JUnit5, Assertj, Hamcrest, Mockito, JSONassert, JsonPath
+	implementation 'org.modelmapper:modelmapper:2.4.2'
+	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-hibernate5'
+	implementation 'io.springfox:springfox-boot-starter:3.0.0'
+	implementation 'io.springfox:springfox-swagger-ui:3.0.0'
+//	testImplementation "org.assertj:assertj-core:3.20.2" //spring-boot-starter-test에 포함됨
+//	testImplementation group: 'org.hamcrest', name: 'hamcrest-junit', version: '2.0.0.0' //spring-boot-starter-test에 포함됨
 }
+
+
 
 tasks.named('test') {
 	useJUnitPlatform()
 }
 
 //[start] spring + react 통합 빌드
-def reactDir = "$projectDir/src/main/webapp/react프로젝트명";
+def reactDir = "$projectDir/src/main/webapp/book_manager";
 
 sourceSets{
 	main{

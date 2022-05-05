@@ -13,6 +13,7 @@ import java.util.List;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
+@Builder
 public class Author extends BaseEntity{
 
     @Id
@@ -23,9 +24,9 @@ public class Author extends BaseEntity{
 
     private String country;
 
+    @Builder.Default
     @ToString.Exclude
-    @OneToMany(fetch = FetchType.EAGER)
-    @JoinColumn(name = "author_id")
+    @OneToMany(mappedBy = "author", fetch = FetchType.EAGER)
     private List<BookAndAuthor> bookAndAuthors = new ArrayList<>();
 
     public void addBookAndAuthor(BookAndAuthor... bookAndAuthors){

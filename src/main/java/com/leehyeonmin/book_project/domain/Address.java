@@ -8,6 +8,7 @@ import javax.persistence.Entity;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class Address{
     private String city; // 시
 

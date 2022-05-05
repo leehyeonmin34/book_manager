@@ -2,14 +2,12 @@ package com.leehyeonmin.book_project.domain;
 
 
 import com.leehyeonmin.book_project.domain.listener.UserEntityListener;
-import com.leehyeonmin.book_project.repository.UserHistoryRepository;
 import com.sun.istack.NotNull;
 import lombok.*;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @AllArgsConstructor
@@ -54,12 +52,33 @@ public class User extends BaseEntity{
     private Address companyAddress;
 
 
-    @OneToMany(fetch = FetchType.EAGER)
+    @Builder.Default
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
     @ToString.Exclude
-    @JoinColumn(name = "user_id", insertable = false, updatable = false)
     private List<UserHistory> userHistories = new ArrayList<>();
 
+    @Builder.Default
+    @ToString.Exclude
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<OrderInfo> orderInfos = new ArrayList<>();
 
+    public void addOrderInfos(OrderInfo... orderInfos){
+
+        Collections.addAll(this.orderInfos, orderInfos);
+        for(OrderInfo orderInfo : orderInfos){
+            orderInfo.setUser(this);
+        }
+    }
+
+    @Builder.Default
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    @ToString.Exclude
+    private List<CartItem> cartItems = new ArrayList<>();
+
+    @Builder.Default
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    @ToString.Exclude
+    private List<Review> reviews = new ArrayList<>();
 
 }
 

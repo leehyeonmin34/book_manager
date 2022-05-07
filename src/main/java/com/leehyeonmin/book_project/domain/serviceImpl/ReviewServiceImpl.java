@@ -6,32 +6,37 @@ import com.leehyeonmin.book_project.domain.service.ReviewService;
 import com.leehyeonmin.book_project.domain.util.ToDto;
 import com.leehyeonmin.book_project.domain.util.ToEntity;
 import com.leehyeonmin.book_project.repository.ReviewRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+@RequiredArgsConstructor
 public class ReviewServiceImpl implements ReviewService {
 
-    @Autowired
-    ReviewRepository reviewRepository;
+    final private ReviewRepository reviewRepository;
+
+    final private ToEntity toEntity;
+
+    final private ToDto toDto;
 
     @Override
     public List<ReviewDto> findAllReviews() {
-        return reviewRepository.findAll().stream().map(item -> ToDto.from(item)).collect(Collectors.toList());
+        return reviewRepository.findAll().stream().map(item -> toDto.from(item)).collect(Collectors.toList());
     }
 
     @Override
     public ReviewDto findReview(Long id) {
         Review entity = reviewRepository.findById(id).orElse(null);
-        return ToDto.from(entity);
+        return toDto.from(entity);
     }
 
     @Override
     public ReviewDto addReview(ReviewDto dto) {
-        Review entity = ToEntity.from(dto);
+        Review entity = toEntity.from(dto);
         Review saved = reviewRepository.save(entity);
-        return ToDto.from(saved);
+        return toDto.from(saved);
     }
 
     @Override

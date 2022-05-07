@@ -8,6 +8,7 @@ import com.leehyeonmin.book_project.domain.dto.OrderInfoDto;
 import com.leehyeonmin.book_project.domain.request.OrderInfoUpdateRequest;
 import com.leehyeonmin.book_project.domain.request.OrderItemUpdateRequest;
 import com.leehyeonmin.book_project.domain.service.OrderInfoService;
+import com.leehyeonmin.book_project.domain.util.ToDto;
 import com.leehyeonmin.book_project.domain.util.ToEntity;
 import com.leehyeonmin.book_project.repository.BookRepository;
 import com.leehyeonmin.book_project.repository.OrderInfoRepository;
@@ -32,6 +33,8 @@ public class OrderInfoServiceImpl implements OrderInfoService {
     private final BookRepository bookRepository;
     private final UserRepository userRepository;
     private final OrderItemRepository orderItemRepository;
+    private final ToEntity toEntity;
+    private final ToDto toDto;
 
     @Override
     @Transactional
@@ -89,7 +92,7 @@ public class OrderInfoServiceImpl implements OrderInfoService {
     @Override
     @Transactional
     public OrderInfoDto modifyOrderInfo(OrderInfoDto orderInfoDto) {
-        OrderInfo updated = orderInfoRepository.save(ToEntity.from(orderInfoDto));
+        OrderInfo updated = orderInfoRepository.save(toEntity.from(orderInfoDto));
         return new OrderInfoDto(updated);
     }
 

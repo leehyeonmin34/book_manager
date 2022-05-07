@@ -1,7 +1,9 @@
 package com.leehyeonmin.book_project.domain.serviceImpl;
 
 import com.leehyeonmin.book_project.domain.Author;
+import com.leehyeonmin.book_project.domain.BookAndAuthor;
 import com.leehyeonmin.book_project.domain.dto.AuthorDto;
+import com.leehyeonmin.book_project.domain.exception.NoEntityException;
 import com.leehyeonmin.book_project.domain.service.AuthorService;
 import com.leehyeonmin.book_project.domain.util.ToDto;
 import com.leehyeonmin.book_project.domain.util.ToEntity;
@@ -9,55 +11,72 @@ import com.leehyeonmin.book_project.repository.AuthorRepository;
 import com.leehyeonmin.book_project.repository.BookAndAuthorRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
+
+@Transactional
+@Service
 @RequiredArgsConstructor
-public class AuthorServiceImpl implements AuthorService {
+public class AuthorServiceImpl extends RuntimeException implements AuthorService {
 
     final private AuthorRepository authorRepository;
 
     final private BookAndAuthorRepository bookAndAuthorRepository;
 
+    final private ToEntity toEntity;
+
+    final private ToDto toDto;
+
     @Override
     public List<AuthorDto> findAllAuthors() {
-        return authorRepository.findAll().stream().map(item -> ToDto.from(item)).collect(Collectors.toList());
+        return authorRepository.findAll().stream().map(item -> toDto.from(item)).collect(Collectors.toList());
     }
 
     @Override
     public AuthorDto findAuthor(Long id) {
         Author author = authorRepository.getById(id);
-        return ToDto.from(author);
+        return toDto.from(author);
     }
 
     @Override
-    public AuthorDto addAuthor(AuthorDto dto) {
-        Author author = ToEntity.from(dto);
-        System.out.println(dto);
-        System.out.println(author);
+    public AuthorDto addAuthor(AuthorDto dto){
+        if(dto == null) throw new NoEntityException("authorDto가 null입니다.");
+        Author author = toEntity.from(dto);
         Author saved = authorRepository.save(author);
-        System.out.println(saved);
-        return ToDto.from(saved);
+        return toDto.from(saved);
     }
 
     @Override
     public AuthorDto modifyAuthor(AuthorDto dto) {
+
+        if(dto == null) throw new NoEntityException("authorDto가 null입니다.");
+
         //author 수정
-        Author author = ToEntity.from(dto);
+        if(!authorRepository.findById(dto.getId()).isPresent()){
+            return null;
+        }
+        Author author = toEntity.from(dto);
         Author saved = authorRepository.save(author);
 
         //연관 bookAndAuthor 수정
-        bookAndAuthorRepository.getByAuthorId(dto.getId()).stream().map(item -> {
+        List<BookAndAuthor> bookAndAuthorList = bookAndAuthorRepository.getByAuthorId(dto.getId());
+        bookAndAuthorList.forEach(item -> {
             item.setAuthor(saved);
-            return bookAndAuthorRepository.save(item);
+            bookAndAuthorRepository.save(item);
         });
 
-        return ToDto.from(saved);
+        return toDto.from(saved);
     }
 
     @Override
     public Boolean removeAuthor(Long id) {
+        if(id == null) throw new NoEntityException("id가 null입니다.");
+
         if(authorRepository.findById(id).isPresent()){
             authorRepository.deleteById(id);
 

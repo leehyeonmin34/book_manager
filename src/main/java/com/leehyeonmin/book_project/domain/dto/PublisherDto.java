@@ -1,10 +1,7 @@
 package com.leehyeonmin.book_project.domain.dto;
 
 import com.leehyeonmin.book_project.domain.Book;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -14,6 +11,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class PublisherDto {
 
     private Long id;

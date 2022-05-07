@@ -7,6 +7,7 @@ import com.leehyeonmin.book_project.domain.util.ToEntity;
 import com.leehyeonmin.book_project.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,15 +16,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-@NoArgsConstructor
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    @Autowired
-    UserRepository userRepository;
+    final private UserRepository userRepository;
 
-    @Autowired
-    ModelMapper modelMapper;
+    final private ModelMapper modelMapper;
+
+    final private ToEntity toEntity;
 
     @Override
     public List<UserDto> findAllUser() {
@@ -37,14 +37,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto addUser(UserDto userDto) {
-        User entity = ToEntity.from(userDto);
+        User entity = toEntity.from(userDto);
         UserDto saved = new UserDto(userRepository.save(entity));
         return saved;
     }
 
     @Override
     public UserDto modifyUser(UserDto userDto) {
-        User entity = ToEntity.from(userDto);
+        User entity = toEntity.from(userDto);
         UserDto saved = new UserDto(userRepository.save(entity));
         return saved;
     }

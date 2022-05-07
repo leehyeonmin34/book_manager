@@ -17,11 +17,11 @@ public class BookAndAuthor extends BaseEntity{
     @GeneratedValue
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE })
     @JoinColumn(name = "AUTHOR_ID")
     private Author author;
 
-    @ManyToOne
+    @ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE })
     @JoinColumn(name = "BOOK_ID")
     private Book book;
 

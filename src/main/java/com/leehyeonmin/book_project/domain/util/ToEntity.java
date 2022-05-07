@@ -3,52 +3,44 @@ package com.leehyeonmin.book_project.domain.util;
 import com.leehyeonmin.book_project.domain.*;
 import com.leehyeonmin.book_project.domain.dto.*;
 import com.leehyeonmin.book_project.repository.*;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.ui.ModelMap;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@RequiredArgsConstructor
 public class ToEntity {
 
-    @Autowired
-    static ModelMapper modelMapper;
+    final private ModelMapper modelMapper;
 
-    @Autowired
-    static OrderInfoRepository orderInfoRepository;
+    final private OrderInfoRepository orderInfoRepository;
 
-    @Autowired
-    static OrderItemRepository orderItemRepository;
+    final private OrderItemRepository orderItemRepository;
 
-    @Autowired
-    static UserRepository userRepository;
+    final private UserRepository userRepository;
 
-    @Autowired
-    static BookRepository bookRepository;
+    final private BookRepository bookRepository;
 
-    @Autowired
-    static BookAndAuthorRepository bookAndAuthorRepository;
+    final private BookAndAuthorRepository bookAndAuthorRepository;
 
-    @Autowired
-    static BookReviewInfoRepository bookReviewInfoRepository;
+    final private BookReviewInfoRepository bookReviewInfoRepository;
 
-    @Autowired
-    static CartItemRepository cartItemRepository;
+    final private CartItemRepository cartItemRepository;
 
-    @Autowired
-    static PublisherRepository publisherRepository;
+    final private PublisherRepository publisherRepository;
 
-    @Autowired
-    static ReviewRepository reviewRepository;
+    final private ReviewRepository reviewRepository;
 
-    @Autowired
-    static UserHistoryRepository userHistoryRepository;
+    final private UserHistoryRepository userHistoryRepository;
 
-    @Autowired
-    static AuthorRepository authorRepository;
+    final private AuthorRepository authorRepository;
 
-    public static OrderInfo from(OrderInfoDto dto){
+    public OrderInfo from(OrderInfoDto dto){
         List<OrderItem> orderItems = dto.getOrderItems().stream()
                 .map(item -> from(item)).collect(Collectors.toList());
 
@@ -63,7 +55,7 @@ public class ToEntity {
         return entity;
     }
 
-    public static OrderItem from(OrderItemDto dto){
+    public OrderItem from(OrderItemDto dto){
 
         OrderInfo orderInfo = orderInfoRepository.findById(dto.getOrderInfoId()).get();
 
@@ -78,7 +70,7 @@ public class ToEntity {
         return entity;
     }
 
-    public static User from(UserDto dto){
+    public User from(UserDto dto){
 
         List<CartItem> cartItems = cartItemRepository.findByUserId(dto.getId());
 
@@ -103,7 +95,7 @@ public class ToEntity {
         return entity;
     }
 
-    public static Book from(BookDto dto){
+    public Book from(BookDto dto){
         List<BookAndAuthor> bookAndAuthors = bookRepository.findById(dto.getId()).get().getBookAndAuthors();
         Publisher publisher = publisherRepository.findById(dto.getPublisherId()).get();
         BookReviewInfo bookReviewInfo = bookReviewInfoRepository.findById(dto.getBookReviewInfoId()).get();
@@ -120,7 +112,7 @@ public class ToEntity {
         return entity;
     }
 
-    public static BookReviewInfo from(BookReviewInfoDto dto){
+    public BookReviewInfo from(BookReviewInfoDto dto){
 
         BookReviewInfo entity = BookReviewInfo.builder()
                 .id(dto.getId())
@@ -130,22 +122,25 @@ public class ToEntity {
         return entity;
     }
 
-    public static Author from(AuthorDto dto){
-        List<BookAndAuthor> bookAndAuthors = null;
-        if (dto.getId() != null) {
+    public Author from(AuthorDto dto){
+        List<BookAndAuthor> bookAndAuthors = new ArrayList<>();
+        Author entity;
+        if (dto == null){
+            return null;
+        } else if (dto.getId() != null) {
             bookAndAuthors = bookAndAuthorRepository.getByAuthorId(dto.getId());
         }
-        Author entity = Author.builder()
-                .id(dto.getId())
-                .name(dto.getName())
-                .country(dto.getCountry())
-                .bookAndAuthors(bookAndAuthors)
-                .build();
+        entity = Author.builder()
+            .id(dto.getId())
+            .name(dto.getName())
+            .country(dto.getCountry())
+            .bookAndAuthors(bookAndAuthors)
+            .build();
 
         return entity;
     }
 
-    public static CartItem from(CartItemDto dto){
+    public CartItem from(CartItemDto dto){
 
         User user = userRepository.getById(dto.getUserId());
 
@@ -160,7 +155,7 @@ public class ToEntity {
         return entity;
     }
 
-    public static Review from(ReviewDto dto){
+    public Review from(ReviewDto dto){
 
         User user = userRepository.getById(dto.getUserId());
         Book book = bookRepository.getById(dto.getBookId());
@@ -176,7 +171,7 @@ public class ToEntity {
         return entity;
     }
 
-    public static Publisher from(PublisherDto dto){
+    public Publisher from(PublisherDto dto){
 
         List<Book> books = bookRepository.findAll().stream().collect(Collectors.toList());
 
@@ -188,7 +183,7 @@ public class ToEntity {
         return entity;
     }
 
-    public static Address from(AddressDto dto){
+    public Address from(AddressDto dto){
         Address entity = Address.builder()
                 .city(dto.getCity())
                 .detail(dto.getAddressDetail())

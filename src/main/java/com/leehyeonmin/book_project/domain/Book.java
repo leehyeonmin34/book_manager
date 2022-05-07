@@ -25,7 +25,7 @@ public class Book extends BaseEntity{
 
     private String name;
 
-    @OneToMany(mappedBy = "book", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "book", fetch = FetchType.LAZY, cascade = { CascadeType.ALL})
     @Builder.Default
     @ToString.Exclude
     private List<BookAndAuthor> bookAndAuthors = new ArrayList<>();
@@ -44,15 +44,15 @@ public class Book extends BaseEntity{
     }
 
     @JoinColumn(name = "PUBLISHER_ID")
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE })
     private Publisher publisher;
 
-    @OneToOne
+    @OneToOne(cascade = { CascadeType.ALL })
     @JoinColumn(name = "BOOK_REVIEW_INFO_ID")
     private BookReviewInfo bookReviewInfo;
 
     @Builder.Default
-    @OneToMany(mappedBy = "book", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "book", fetch = FetchType.LAZY, cascade = {CascadeType.ALL})
     private List<Review> reviews = new ArrayList<>();
 
 

@@ -26,7 +26,8 @@ public class Author extends BaseEntity{
 
     @Builder.Default
     @ToString.Exclude
-    @OneToMany(mappedBy = "author", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "author", fetch = FetchType.EAGER
+            , cascade = { CascadeType.ALL })
     private List<BookAndAuthor> bookAndAuthors = new ArrayList<>();
 
     public void addBookAndAuthor(BookAndAuthor... bookAndAuthors){

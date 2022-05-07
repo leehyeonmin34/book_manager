@@ -5,7 +5,9 @@ import com.leehyeonmin.book_project.domain.Author;
 import com.leehyeonmin.book_project.domain.Book;
 import com.leehyeonmin.book_project.domain.BookAndAuthor;
 import com.leehyeonmin.book_project.domain.dto.AuthorDto;
+import com.leehyeonmin.book_project.domain.exception.NoEntityException;
 import com.leehyeonmin.book_project.domain.serviceImpl.AuthorServiceImpl;
+import com.leehyeonmin.book_project.domain.util.ToDto;
 import com.leehyeonmin.book_project.domain.util.ToEntity;
 import com.leehyeonmin.book_project.repository.AuthorRepository;
 import com.leehyeonmin.book_project.repository.BookAndAuthorRepository;
@@ -21,8 +23,12 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
@@ -43,93 +49,143 @@ public class AuthorServiceTest {
     @Mock
     private BookRepository bookRepository;
 
-//    @BeforeEach
-//    public void init(){
-//
-//        Book book1 = givenBook("책1", "카테고리1");
-//        Book book2 = givenBook("책2", "카테고리2");
-//        Book book3 = givenBook("책3", "카테고리3");
-//
-//        Author author1 = givenAuthor("작가1", "나라1");
-//        Author author2 = givenAuthor("작가2", "나라2");
-//
-//        BookAndAuthor bookAndAuthor1 = givenBookAndAuthor(book1, author1);
-//        BookAndAuthor bookAndAuthor2 = givenBookAndAuthor(book1, author2);
-//        BookAndAuthor bookAndAuthor3 = givenBookAndAuthor(book2, author1);
-//        BookAndAuthor bookAndAuthor4 = givenBookAndAuthor(book2, author2);
-//        BookAndAuthor bookAndAuthor5 = givenBookAndAuthor(book3, author1);
-//        BookAndAuthor bookAndAuthor6 = givenBookAndAuthor(book3, author2);
-//        //책1 - 작가1,작가2
-//        //책2 - 작가1,작가2
-//        //책3 - 작가1,작가2
-//    }
+    @Mock
+    private ToEntity toEntity;
 
-    @Test
-    @DisplayName("author 추가 테스트")
-    public void addTest(){
-
-        //given
-        AuthorDto authorDto = AuthorDto.builder()
-                .name("작가 이름")
-                .country("국가")
-                .build();
-        Author mockAuthor = Author.builder()
-                .name(authorDto.getName())
-                .country(authorDto.getCountry())
-                .id(Long.valueOf(999))
-                .build();
-        when(authorRepository.save(any(Author.class))).thenReturn(mockAuthor);
+    @Mock
+    private ToDto toDto;
 
 
-        // when
-        AuthorDto result =  authorService.addAuthor(authorDto);
 
-        // then
-        assertThat(result.getName()).isEqualTo(authorDto.getName());
-        assertThat(result.getCountry()).isEqualTo(authorDto.getCountry());
-        assertThat(result.getId()).isEqualTo(mockAuthor.getId());
+    @BeforeEach
+    public void init(){
+
+
     }
 
     @Test
-    @DisplayName("author 제거 테스트")
-    public void removeTest(){
+    @DisplayName("author 추가 (성공)")
+    public void addTestSuccess(){
+
+        //given
+        AuthorDto givenDtoWithoutId = givenDtoWithoutId();
+        Author givenAuthorWithoutId = givenAuthorWithoutId();
+        Author givenAuthorWithId = givenAuthorWithId();
+        AuthorDto givenDtoWithId = givenDtoWithId();
+
+
+        lenient().when(toEntity.from(any(AuthorDto.class))).thenReturn(givenAuthorWithoutId);
+        lenient().when(authorRepository.save(any(Author.class))).thenReturn(givenAuthorWithId);
+        lenient().when(toDto.from(any(Author.class))).thenReturn(givenDtoWithId);
+
+        // when
+        AuthorDto result =  authorService.addAuthor(givenDtoWithoutId);
+
+        // then
+        assertThat(result.getName()).isEqualTo(givenDtoWithoutId.getName());
+        assertThat(result.getCountry()).isEqualTo(givenDtoWithoutId.getCountry());
+    }
+
+    @Test
+    @DisplayName("author 추가 (실패)")
+    public void addTestFail(){
+        // then
+        assertThatThrownBy(() -> authorService.addAuthor(null))
+                .isInstanceOf(NoEntityException.class);
+    }
+
+    @Test
+    @DisplayName("author 제거 테스트 (성공)")
+    public void removeTestSuccess(){
         // GIVEN
-        AuthorDto authorDto = AuthorDto.builder()
-                .name("작가 이름")
-                .country("국가")
-                .build();
-        Author mockAuthor = Author.builder()
-                .name(authorDto.getName())
-                .country(authorDto.getCountry())
-                .id(Long.valueOf(999))
-                .build();
-        when(authorRepository.save(any(Author.class))).thenReturn(mockAuthor);
-        when(authorRepository.findById(any(Long.class))).thenReturn(Optional.of(mockAuthor));
+        Author givenAuthorWithId = givenAuthorWithId();
+        AuthorDto givenDtoWithId = givenDtoWithId();
+        List<BookAndAuthor> givenBookAndAuthorList = givenBookAndAuthorListWithId();
+
+        lenient().when(authorRepository.findById(any(Long.class))).thenReturn(Optional.of(givenAuthorWithId));
+        lenient().when(bookAndAuthorRepository.getByAuthorId(any(Long.class))).thenReturn(givenBookAndAuthorList);
 
         //when
-        Author saved = authorRepository.save(ToEntity.from(authorDto));
-        Boolean result = authorService.removeAuthor(saved.getId());
-        System.out.println(saved.getId());
+        Boolean result = authorService.removeAuthor(givenDtoWithId.getId());
 
         //then
         verify(authorRepository, times(1)).deleteById(any(Long.class));
+        verify(bookAndAuthorRepository, times(givenBookAndAuthorList.size())).delete(any(BookAndAuthor.class));
         assertThat(result).isEqualTo(true);
     }
 
-    public Book givenBook(String name, String category){
-        Book book = Book.builder()
-                .name(name)
-                .category(category)
-                .build();
-        return bookRepository.save(book);
+    @Test
+    @DisplayName("author 제거 테스트 (실패)")
+    public void removeTestFail(){
+        assertThatThrownBy(() -> authorService.removeAuthor(null))
+                .isInstanceOf(NoEntityException.class);
     }
 
-    public Author givenAuthor(String name, String country){
-        Author author = Author.builder()
-                .name(name)
-                .country(country)
+    @Test
+    @DisplayName("author 수정 테스트 (성공)")
+    public void modifyTest(){
+        // GIVEN
+        Author givenAuthorWithId = givenAuthorWithId();
+        List<BookAndAuthor> givenBookAndAuthorList = givenBookAndAuthorListWithId();
+
+        AuthorDto modifiedAuthorDto = givenDtoWithId();
+        modifiedAuthorDto.setCountry("다른 나라");
+        Author modifiedAuthor = givenAuthorWithId();
+        modifiedAuthor.setCountry(modifiedAuthorDto.getCountry());
+
+        lenient().when(authorRepository.findById(any(Long.class))).thenReturn(Optional.of(givenAuthorWithId));
+        lenient().when(toEntity.from(any(AuthorDto.class))).thenReturn(modifiedAuthor);
+        lenient().when(authorRepository.save(any(Author.class))).thenReturn(modifiedAuthor);
+        lenient().when(bookAndAuthorRepository.getByAuthorId(any(Long.class))).thenReturn(givenBookAndAuthorList);
+        lenient().when(bookAndAuthorRepository.save(any(BookAndAuthor.class))).thenReturn(givenBookAndAuthorWithId());
+        lenient().when(toDto.from(any(Author.class))).thenReturn(modifiedAuthorDto);
+
+        //when
+        AuthorDto result = authorService.modifyAuthor(modifiedAuthorDto);
+
+        //then
+        assertThat(result.getName()).isEqualTo(modifiedAuthorDto.getName());
+        assertThat(result.getCountry()).isEqualTo(modifiedAuthorDto.getCountry());
+        assertThat(result.getId()).isEqualTo(modifiedAuthorDto.getId());
+        verify(bookAndAuthorRepository, times(givenBookAndAuthorList.size())).save(any(BookAndAuthor.class));
+        verify(bookAndAuthorRepository, times(1)).getByAuthorId(any(Long.class));
+
+    }
+
+    @Test
+    @DisplayName("author 수정 테스트 (실패)")
+    public void modifyTestFail(){
+        assertThatThrownBy(() -> authorService.modifyAuthor(null))
+                .isInstanceOf(NoEntityException.class);
+    }
+
+
+    public AuthorDto givenDtoWithoutId(){
+        AuthorDto dto = AuthorDto.builder()
+                .name("작가 이름")
+                .country("국가")
                 .build();
-        return authorRepository.save(author);
+        return dto;
+    }
+
+    public AuthorDto givenDtoWithId(){
+        AuthorDto dto = givenDtoWithoutId();
+        dto.setId(999L);
+        return dto;
+    }
+
+    public Author givenAuthorWithoutId(){
+        Author author = Author.builder()
+                .name("작가 이름")
+                .country("국가")
+                .build();
+        return author;
+    }
+
+    public Author givenAuthorWithId(){
+        Author author = givenAuthorWithoutId();
+        author.setId(999L);
+        return author;
     }
 
     public BookAndAuthor givenBookAndAuthor(Book book, Author author){
@@ -137,7 +193,46 @@ public class AuthorServiceTest {
                 .book(book)
                 .author(author)
                 .build();
-        return bookAndAuthorRepository.save(bookAndAuthor);
+        return bookAndAuthor;
     }
+
+    public List<BookAndAuthor> givenBookAndAuthorListWithId() {
+        List<BookAndAuthor> lst = new ArrayList<>();
+        for(int i = 0; i < 5 ; i ++){
+            Author author = givenAuthorWithId();
+            Book book = givenBookWithId();
+            lst.add(BookAndAuthor.builder().author(author).book(book).id(Long.valueOf(i)).build());
+        }
+        return lst;
+    }
+
+    public BookAndAuthor givenBookAndAuthorWithoutId(){
+        BookAndAuthor bookAndAuthor = BookAndAuthor.builder()
+                .book(givenBookWithId())
+                .author(givenAuthorWithId())
+                .build();
+        return bookAndAuthor;
+    }
+
+    public BookAndAuthor givenBookAndAuthorWithId(){
+        BookAndAuthor bookAndAuthor = givenBookAndAuthorWithoutId();
+        bookAndAuthor.setId(999L);
+        return bookAndAuthor;
+    }
+
+    public Book givenBookWithoutId(){
+        Book book = Book.builder()
+                .category("카테고리")
+                .name("이름")
+                .build();
+        return book;
+    }
+
+    public Book givenBookWithId(){
+        Book book = givenBookWithoutId();
+        book.setId(999L);
+        return book;
+    }
+
 
 }

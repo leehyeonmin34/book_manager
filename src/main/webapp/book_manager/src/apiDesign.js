@@ -171,7 +171,7 @@ const updateUserById = {
 
 // DELETE users/{id} (회원 탈퇴 시)
 
-// review-------------------
+// review --------------------------------------
 
 // GET reviews/{book_id}
 
@@ -197,4 +197,25 @@ const postReview = {
     score: 4.5,
     book_id: 1,
     user_id: 1,
+};
+
+// author ----------------------------------------------------------
+
+// GET author/{author_id}
+
+const getAuthors = {
+    authors: [
+        {
+            id: 1,
+            name: "이름",
+        },
+    ],
+    total: 2,
+};
+
+// POST author
+
+const postAuthor = {
+    id: 1,
+    name: "이름",
 };

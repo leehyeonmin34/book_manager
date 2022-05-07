@@ -25,6 +25,8 @@ public class BookDto {
 
     private Long publisherId;
 
+    private Long authorId;
+
     private Long bookReviewInfoId;
 
     public BookDto(Book book){

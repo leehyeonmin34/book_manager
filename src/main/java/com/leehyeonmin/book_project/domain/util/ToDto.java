@@ -12,10 +12,12 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ToDto {
 
+    final private ModelMapper modelMapper;
 
-    static private ModelMapper modelMapper;
-
-    public static AuthorDto from(Author entity){
+    public AuthorDto from(Author entity){
+        if(entity != null){
+            return null;
+        }
         System.out.println(entity);
         AuthorDto dto = AuthorDto.builder()
                 .country(entity.getCountry())
@@ -25,7 +27,10 @@ public class ToDto {
         return dto;
     }
 
-    public static BookReviewInfoDto from(BookReviewInfo entity){
+    public BookReviewInfoDto from(BookReviewInfo entity){
+        if(entity != null){
+            return null;
+        }
         BookReviewInfoDto dto = new BookReviewInfoDto();
         dto.setAverageReviewScore(entity.getAverageReviewScore());
         dto.setReviewCount(entity.getReviewCount());
@@ -34,7 +39,10 @@ public class ToDto {
         return dto;
     }
 
-    public static BookDto from(Book entity){
+    public BookDto from(Book entity){
+        if(entity != null){
+            return null;
+        }
         BookDto dto = new BookDto();
         dto.setCategory(entity.getCategory());
         dto.setBookReviewInfoId(entity.getBookReviewInfo().getId());
@@ -46,7 +54,10 @@ public class ToDto {
         return dto;
     }
 
-    public static CartItemDto from(CartItem entity){
+    public CartItemDto from(CartItem entity){
+        if(entity != null){
+            return null;
+        }
         CartItemDto dto = new CartItemDto();
         dto.setEa(entity.getEa());
         dto.setUserId(entity.getUser().getId());
@@ -56,17 +67,23 @@ public class ToDto {
         return dto;
     }
 
-    public static OrderInfoDto from(OrderInfo entity){
+    public OrderInfoDto from(OrderInfo entity){
+        if(entity != null){
+            return null;
+        }
         OrderInfoDto dto = new OrderInfoDto();
         dto.setId(entity.getId());
         dto.setOrderDate(entity.getOrderDate());
-        dto.setOrderItems(entity.getOrderItems().stream().map(item -> ToDto.from(item)).collect(Collectors.toList()));
+        dto.setOrderItems(entity.getOrderItems().stream().map(item -> from(item)).collect(Collectors.toList()));
         dto.setUserId(entity.getUser().getId());
 
         return dto;
     }
 
-    public static OrderItemDto from(OrderItem entity){
+    public OrderItemDto from(OrderItem entity){
+        if(entity != null){
+            return null;
+        }
         OrderItemDto dto = new OrderItemDto();
         dto.setArriveDate(entity.getArriveDate());
         dto.setEa(entity.getEa());
@@ -77,7 +94,10 @@ public class ToDto {
         return dto;
     }
 
-    public static PublisherDto from(Publisher entity){
+    public PublisherDto from(Publisher entity){
+        if(entity != null){
+            return null;
+        }
         PublisherDto dto = new PublisherDto();
         dto.setId(entity.getId());
         dto.setName(entity.getName());
@@ -85,7 +105,10 @@ public class ToDto {
         return dto;
     }
 
-    public static ReviewDto from(Review entity){
+    public ReviewDto from(Review entity){
+        if(entity != null){
+            return null;
+        }
         ReviewDto dto = new ReviewDto();
         dto.setContent(entity.getContent());
         dto.setScore(entity.getScore());
@@ -98,19 +121,25 @@ public class ToDto {
     }
 
 
-    public static UserDto from(User entity){
+    public UserDto from(User entity){
+        if(entity != null){
+            return null;
+        }
         UserDto dto = new UserDto();
         dto.setEmail(entity.getEmail());
         dto.setGender(entity.getGender().name());
-        dto.setCompanyAddress(ToDto.from(entity.getCompanyAddress()));
-        dto.setHomeAddress(ToDto.from(entity.getHomeAddress()));
+        dto.setCompanyAddress(from(entity.getCompanyAddress()));
+        dto.setHomeAddress(from(entity.getHomeAddress()));
         dto.setName(entity.getName());
         dto.setId(entity.getId());
 
         return dto;
     }
 
-    public static AddressDto from(Address entity){
+    public AddressDto from(Address entity){
+        if(entity != null){
+            return null;
+        }
         AddressDto dto = new AddressDto();
         dto.setCity(entity.getCity());
         dto.setDistrict(entity.getDistrict());

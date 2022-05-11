@@ -3,12 +3,10 @@ package com.leehyeonmin.book_project.domain.serviceImpl;
 import com.leehyeonmin.book_project.domain.Publisher;
 import com.leehyeonmin.book_project.domain.dto.PublisherDto;
 import com.leehyeonmin.book_project.domain.service.PublisherService;
-import com.leehyeonmin.book_project.domain.util.ToDto;
-import com.leehyeonmin.book_project.domain.util.ToEntity;
+import com.leehyeonmin.book_project.domain.utils.ToDto;
+import com.leehyeonmin.book_project.domain.utils.ToEntity;
 import com.leehyeonmin.book_project.repository.PublisherRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.List;
 import java.util.stream.Collectors;

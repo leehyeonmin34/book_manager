@@ -1,20 +1,17 @@
-package com.leehyeonmin.book_project.domain.util;
+package com.leehyeonmin.book_project.domain.utils;
 
 import com.leehyeonmin.book_project.domain.*;
 import com.leehyeonmin.book_project.domain.dto.*;
 import com.leehyeonmin.book_project.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.ui.ModelMap;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
-public class ToEntity {
+public class ToEntity{
 
     final private ModelMapper modelMapper;
 
@@ -40,7 +37,16 @@ public class ToEntity {
 
     final private AuthorRepository authorRepository;
 
-    public OrderInfo from(OrderInfoDto dto){
+//    public BaseEntity from(BaseDto dto){
+//        return null;
+
+//    }
+
+    public <E extends BaseEntity, D extends BaseDto> E from(D dto) {
+        return from(dto);
+    }
+
+    private OrderInfo from(OrderInfoDto dto){
         List<OrderItem> orderItems = dto.getOrderItems().stream()
                 .map(item -> from(item)).collect(Collectors.toList());
 
@@ -55,7 +61,7 @@ public class ToEntity {
         return entity;
     }
 
-    public OrderItem from(OrderItemDto dto){
+    private OrderItem from(OrderItemDto dto){
 
         OrderInfo orderInfo = orderInfoRepository.findById(dto.getOrderInfoId()).get();
 
@@ -70,13 +76,13 @@ public class ToEntity {
         return entity;
     }
 
-    public User from(UserDto dto){
+    private User from(UserDto dto){
 
         List<CartItem> cartItems = cartItemRepository.findByUserId(dto.getId());
 
         List<OrderInfo> orderInfos = orderInfoRepository.findByUserId(dto.getId());
 
-        List<Review> reviews = reviewRepository.findByUserId(dto.getId());
+        List<Review> reviews = reviewRepository.getByUserId(dto.getId());
 
         List<UserHistory> userHistories = userHistoryRepository.findByUserId(dto.getId());
 
@@ -95,7 +101,7 @@ public class ToEntity {
         return entity;
     }
 
-    public Book from(BookDto dto){
+    private Book from(BookDto dto){
         List<BookAndAuthor> bookAndAuthors = bookRepository.findById(dto.getId()).get().getBookAndAuthors();
         Publisher publisher = publisherRepository.findById(dto.getPublisherId()).get();
         BookReviewInfo bookReviewInfo = bookReviewInfoRepository.findById(dto.getBookReviewInfoId()).get();
@@ -112,7 +118,7 @@ public class ToEntity {
         return entity;
     }
 
-    public BookReviewInfo from(BookReviewInfoDto dto){
+    private BookReviewInfo from(BookReviewInfoDto dto){
 
         BookReviewInfo entity = BookReviewInfo.builder()
                 .id(dto.getId())
@@ -122,7 +128,7 @@ public class ToEntity {
         return entity;
     }
 
-    public Author from(AuthorDto dto){
+    private Author from(AuthorDto dto){
         List<BookAndAuthor> bookAndAuthors = new ArrayList<>();
         Author entity;
         if (dto == null){
@@ -140,7 +146,7 @@ public class ToEntity {
         return entity;
     }
 
-    public CartItem from(CartItemDto dto){
+    private CartItem from(CartItemDto dto){
 
         User user = userRepository.getById(dto.getUserId());
 
@@ -155,7 +161,7 @@ public class ToEntity {
         return entity;
     }
 
-    public Review from(ReviewDto dto){
+    private Review from(ReviewDto dto){
 
         User user = userRepository.getById(dto.getUserId());
         Book book = bookRepository.getById(dto.getBookId());
@@ -171,7 +177,7 @@ public class ToEntity {
         return entity;
     }
 
-    public Publisher from(PublisherDto dto){
+    private Publisher from(PublisherDto dto){
 
         List<Book> books = bookRepository.findAll().stream().collect(Collectors.toList());
 
@@ -183,7 +189,7 @@ public class ToEntity {
         return entity;
     }
 
-    public Address from(AddressDto dto){
+    private Address from(AddressDto dto){
         Address entity = Address.builder()
                 .city(dto.getCity())
                 .detail(dto.getAddressDetail())
@@ -192,8 +198,5 @@ public class ToEntity {
                 .build();
         return entity;
     }
-
-
-
 
 }

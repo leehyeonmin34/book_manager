@@ -7,12 +7,12 @@ import com.leehyeonmin.book_project.domain.BookAndAuthor;
 import com.leehyeonmin.book_project.domain.dto.AuthorDto;
 import com.leehyeonmin.book_project.domain.exception.NoEntityException;
 import com.leehyeonmin.book_project.domain.serviceImpl.AuthorServiceImpl;
-import com.leehyeonmin.book_project.domain.util.ToDto;
-import com.leehyeonmin.book_project.domain.util.ToEntity;
+import com.leehyeonmin.book_project.domain.utils.ToDto;
+import com.leehyeonmin.book_project.domain.utils.ToEntity;
 import com.leehyeonmin.book_project.repository.AuthorRepository;
 import com.leehyeonmin.book_project.repository.BookAndAuthorRepository;
 import com.leehyeonmin.book_project.repository.BookRepository;
-import jdk.jfr.Name;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -21,16 +21,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
 //@SpringBootTest
@@ -131,7 +128,7 @@ public class AuthorServiceTest {
         AuthorDto modifiedAuthorDto = givenDtoWithId();
         modifiedAuthorDto.setCountry("다른 나라");
         Author modifiedAuthor = givenAuthorWithId();
-        modifiedAuthor.setCountry(modifiedAuthorDto.getCountry());
+        modifiedAuthor.updateBasicInfo(modifiedAuthorDto.getName(), modifiedAuthorDto.getCountry());
 
         lenient().when(authorRepository.findById(any(Long.class))).thenReturn(Optional.of(givenAuthorWithId));
         lenient().when(toEntity.from(any(AuthorDto.class))).thenReturn(modifiedAuthor);
@@ -183,8 +180,11 @@ public class AuthorServiceTest {
     }
 
     public Author givenAuthorWithId(){
-        Author author = givenAuthorWithoutId();
-        author.setId(999L);
+        Author author = Author.builder()
+                .name("작가 이름")
+                .country("국가")
+                .id(999L)
+                .build();
         return author;
     }
 
@@ -215,8 +215,11 @@ public class AuthorServiceTest {
     }
 
     public BookAndAuthor givenBookAndAuthorWithId(){
-        BookAndAuthor bookAndAuthor = givenBookAndAuthorWithoutId();
-        bookAndAuthor.setId(999L);
+        BookAndAuthor bookAndAuthor = BookAndAuthor.builder()
+                .book(givenBookWithId())
+                .author(givenAuthorWithId())
+                .id(999L)
+                .build();
         return bookAndAuthor;
     }
 
@@ -229,8 +232,11 @@ public class AuthorServiceTest {
     }
 
     public Book givenBookWithId(){
-        Book book = givenBookWithoutId();
-        book.setId(999L);
+        Book book = Book.builder()
+                .category("카테고리")
+                .name("이름")
+                .id(999L)
+                .build();
         return book;
     }
 

@@ -2,6 +2,7 @@ package com.leehyeonmin.book_project.domain.controller;
 
 import com.leehyeonmin.book_project.domain.dto.OrderInfoDto;
 import com.leehyeonmin.book_project.domain.request.OrderInfoUpdateRequest;
+import com.leehyeonmin.book_project.domain.serviceImpl.BookServiceImpl;
 import com.leehyeonmin.book_project.domain.serviceImpl.OrderInfoServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,6 +15,11 @@ public class OrderInfoRestController {
 
     @Autowired
     private OrderInfoServiceImpl orderInfoService;
+
+    @Autowired
+    private BookServiceImpl bookService;
+
+
 
     @PostMapping("/")
     public ResponseEntity<OrderInfoDto> addOrderInfo(@RequestBody OrderInfoUpdateRequest orderInfoUpdateRequest){

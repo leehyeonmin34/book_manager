@@ -8,9 +8,9 @@ import java.util.Collections;
 import java.util.List;
 
 @Entity
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-@Data
+@Getter
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 @Builder
@@ -32,6 +32,11 @@ public class Author extends BaseEntity{
 
     public void addBookAndAuthor(BookAndAuthor... bookAndAuthors){
         Collections.addAll(this.bookAndAuthors, bookAndAuthors);
+    }
+
+    public void updateBasicInfo(String name, String country){
+        this.name = name;
+        this.country = country;
     }
 
 }

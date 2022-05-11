@@ -1,27 +1,22 @@
 package com.leehyeonmin.book_project.domain.dto;
 
-import com.leehyeonmin.book_project.domain.*;
+import com.leehyeonmin.book_project.domain.BookStatus;
 import lombok.*;
-
-import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import lombok.experimental.SuperBuilder;
 
 @Getter
 @Setter
-@Builder
-@AllArgsConstructor
+@SuperBuilder
+@ToString(callSuper = true)
 @NoArgsConstructor
-public class BookDto {
-    private Long id;
+public class BookDto extends BaseDto{
 
     private String name;
 
     private String category;
 
     @Builder.Default
-    private BookStatus status = new BookStatus();
+    private BookStatus status = new BookStatus(BookStatus.AVALABLE);
 
     private Long publisherId;
 
@@ -29,13 +24,5 @@ public class BookDto {
 
     private Long bookReviewInfoId;
 
-    public BookDto(Book book){
-        id = book.getId();
-        name = book.getName();
-        category = book.getCategory();
-        status = book.getStatus();
-        publisherId = book.getPublisher().getId();
-        bookReviewInfoId = book.getBookReviewInfo().getId();
-    }
 
 }

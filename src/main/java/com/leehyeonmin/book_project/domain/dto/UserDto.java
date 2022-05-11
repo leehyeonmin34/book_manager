@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import lombok.experimental.SuperBuilder;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -15,9 +16,10 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserDto {
+@ToString(callSuper = true)
+@SuperBuilder
 
-    private Long id;
+public class UserDto extends BaseDto {
 
     private String name;
 

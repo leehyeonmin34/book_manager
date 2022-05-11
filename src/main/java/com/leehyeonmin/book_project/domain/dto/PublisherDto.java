@@ -2,6 +2,8 @@ package com.leehyeonmin.book_project.domain.dto;
 
 import com.leehyeonmin.book_project.domain.Book;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
+import net.bytebuddy.implementation.bind.annotation.Super;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -11,10 +13,9 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class PublisherDto {
-
-    private Long id;
+@ToString(callSuper = true)
+@SuperBuilder
+public class PublisherDto extends BaseDto{
 
     private String name;
 

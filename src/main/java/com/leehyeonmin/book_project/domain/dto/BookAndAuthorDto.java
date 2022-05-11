@@ -1,4 +1,9 @@
 package com.leehyeonmin.book_project.domain.dto;
 
-public class BookAndAuthorDto {
+import lombok.ToString;
+import lombok.experimental.SuperBuilder;
+
+@ToString(callSuper = true)
+@SuperBuilder
+public class BookAndAuthorDto extends BaseDto{
 }

@@ -3,11 +3,10 @@ package com.leehyeonmin.book_project.domain.serviceImpl;
 import com.leehyeonmin.book_project.domain.CartItem;
 import com.leehyeonmin.book_project.domain.dto.CartItemDto;
 import com.leehyeonmin.book_project.domain.service.CartItemService;
-import com.leehyeonmin.book_project.domain.util.ToDto;
-import com.leehyeonmin.book_project.domain.util.ToEntity;
+import com.leehyeonmin.book_project.domain.utils.ToDto;
+import com.leehyeonmin.book_project.domain.utils.ToEntity;
 import com.leehyeonmin.book_project.repository.CartItemRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 import java.util.stream.Collectors;

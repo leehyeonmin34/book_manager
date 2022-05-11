@@ -3,13 +3,10 @@ package com.leehyeonmin.book_project.domain.serviceImpl;
 import com.leehyeonmin.book_project.domain.User;
 import com.leehyeonmin.book_project.domain.dto.UserDto;
 import com.leehyeonmin.book_project.domain.service.UserService;
-import com.leehyeonmin.book_project.domain.util.ToEntity;
+import com.leehyeonmin.book_project.domain.utils.ToEntity;
 import com.leehyeonmin.book_project.repository.UserRepository;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

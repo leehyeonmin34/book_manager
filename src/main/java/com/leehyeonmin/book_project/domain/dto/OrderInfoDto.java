@@ -5,6 +5,7 @@ import com.leehyeonmin.book_project.domain.OrderInfo;
 import com.leehyeonmin.book_project.domain.OrderItem;
 import com.leehyeonmin.book_project.domain.User;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -16,9 +17,10 @@ import java.util.stream.Collectors;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class OrderInfoDto {
+@ToString(callSuper = true)
+@SuperBuilder
 
-    private Long id;
+public class OrderInfoDto extends BaseDto{
 
     private LocalDateTime orderDate;
 

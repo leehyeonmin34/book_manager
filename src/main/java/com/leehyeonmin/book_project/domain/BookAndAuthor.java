@@ -6,12 +6,12 @@ import javax.persistence.*;
 
 
 @Entity
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @Builder
-@Data
+@Getter
 public class BookAndAuthor extends BaseEntity{
     @Id
     @GeneratedValue
@@ -24,5 +24,13 @@ public class BookAndAuthor extends BaseEntity{
     @ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE })
     @JoinColumn(name = "BOOK_ID")
     private Book book;
+
+    public void updateBook(Book book){
+        this.book = book;
+    }
+
+    public void updateAuthor(Author author){
+        this.author = author;
+    }
 
 }

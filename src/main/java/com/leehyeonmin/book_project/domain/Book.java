@@ -11,9 +11,9 @@ import java.util.List;
 
 @Entity
 @Builder
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-@Data
+@Getter
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 public class Book extends BaseEntity{
@@ -25,6 +25,8 @@ public class Book extends BaseEntity{
 
     private String name;
 
+    private String category;
+
     @OneToMany(mappedBy = "book", fetch = FetchType.LAZY, cascade = { CascadeType.ALL})
     @Builder.Default
     @ToString.Exclude
@@ -34,14 +36,8 @@ public class Book extends BaseEntity{
         Collections.addAll(this.bookAndAuthors, bookAndAuthors);
     }
 
-    private String category;
-
     @Builder.Default
-    private BookStatus status = new BookStatus();
-
-    public void setStatus(int code){
-        this.status.setBookStatus(code);
-    }
+    private BookStatus status = new BookStatus(BookStatus.AVALABLE);
 
     @JoinColumn(name = "PUBLISHER_ID")
     @ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE })
@@ -55,6 +51,18 @@ public class Book extends BaseEntity{
     @OneToMany(mappedBy = "book", fetch = FetchType.LAZY, cascade = {CascadeType.ALL})
     private List<Review> reviews = new ArrayList<>();
 
+    public void updatePublisher(Publisher publisher){
+        this.publisher = publisher;
+    }
+
+    public void updateBasicInfo(String name, String category){
+        this.name = name;
+        this.category = category;
+    }
+
+    public void updateStatus(int code){
+        this.status.updateBookStatus(code);
+    }
 
 
 }

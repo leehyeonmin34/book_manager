@@ -10,8 +10,8 @@ import java.util.Collections;
 import java.util.List;
 
 @Entity
-@Data
-@NoArgsConstructor
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
@@ -33,7 +33,7 @@ public class Publisher extends BaseEntity {
     public void addBooks(Book... books) {
         Collections.addAll(this.books, books);
         for(Book book : books){
-            book.setPublisher(this);
+            book.updatePublisher(this);
         }
     }
 }

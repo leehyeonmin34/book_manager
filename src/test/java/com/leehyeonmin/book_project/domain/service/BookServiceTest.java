@@ -6,16 +6,17 @@ import com.leehyeonmin.book_project.domain.dto.BookDto;
 import com.leehyeonmin.book_project.domain.dto.PublisherDto;
 import com.leehyeonmin.book_project.domain.request.AddBookRequest;
 import com.leehyeonmin.book_project.domain.serviceImpl.BookServiceImpl;
-import com.leehyeonmin.book_project.domain.util.ToDto;
-import com.leehyeonmin.book_project.domain.util.ToEntity;
+import com.leehyeonmin.book_project.domain.utils.ToDto;
+import com.leehyeonmin.book_project.domain.utils.ToEntity;
 import com.leehyeonmin.book_project.repository.*;
-import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -51,52 +52,24 @@ public class BookServiceTest {
     @Mock
     private ToDto toDto;
 
-    @Test
-    @DisplayName("book 추가(author, publisher 생성) Success")
-    public void addBookWithoutExistingMemberTest(){
-        //given
-        BookDto bookDtoIn = bookDtoIn();
-        AuthorDto authorDto = AuthorDto.builder()
-                .name("이름")
-                .country("국가")
-                .build();
-        PublisherDto publisherDto = PublisherDto.builder()
-                .name("이름")
-                .build();
-        AddBookRequest request = AddBookRequest.builder().bookDto(bookDtoIn).authorDto(authorDto).publisherDto(publisherDto).build();
-
-        lenient().when(toEntity.from(any(AuthorDto.class))).thenReturn(authorIn());
-        lenient().when(toEntity.from(any(PublisherDto.class))).thenReturn(publisherIn());
-        lenient().when(authorRepository.getById(any(Long.class))).thenReturn(authorOut());
-        lenient().when(publisherRepository.getById(any(Long.class))).thenReturn(publisherOut());
-        lenient().when(bookRepository.save(any(Book.class))).thenReturn(bookOut());
-        lenient().when(toDto.from(any(Book.class))).thenReturn(bookDtoOut());
-
-        //when
-        BookDto result = bookService.addBook(request);
-
-        //then
-        verify(toEntity, times(1)).from(any(AuthorDto.class));
-        verify(toEntity, times(1)).from(any(PublisherDto.class));
-        verify(bookRepository, times(1)).save(any(Book.class));
-        //get이랑 find 차이
-
-    }
 
     @Test
-    @DisplayName("book 추가(author, publisher 로드) Success")
-    public void addBookWithExistingMemeberTest(){
+    @DisplayName("book 추가 Success")
+    public void addBookTest(){
         //given
         BookDto bookDto = bookDtoIn();
         bookDto.setPublisherId(999L);
         bookDto.setAuthorId(999L);
-        AddBookRequest request = AddBookRequest.builder().bookDto(bookDto).authorDto(null).publisherDto(null).build();
+        AddBookRequest request = AddBookRequest.builder()
+                .authorDto(authorDtoIn())
+                .publisherDto(publisherDtoIn())
+                .build();
 
-        lenient().when(toEntity.from(any(AuthorDto.class))).thenReturn(authorIn());
-        lenient().when(toEntity.from(any(PublisherDto.class))).thenReturn(publisherIn());
         lenient().when(authorRepository.getById(any(Long.class))).thenReturn(authorOut());
         lenient().when(publisherRepository.getById(any(Long.class))).thenReturn(publisherOut());
         lenient().when(bookRepository.save(any(Book.class))).thenReturn(bookOut());
+        lenient().when(toDto.from(any(Book.class))).thenReturn(bookDtoOut());
+        lenient().when(bookRepository.getById(any(Long.class))).thenReturn(bookOut());
         lenient().when(toDto.from(any(Book.class))).thenReturn(bookDtoOut());
 
         //when
@@ -110,14 +83,38 @@ public class BookServiceTest {
     }
 
     @Test
-    @DisplayName("book 삭제 Success")
-    public void removeBookTest(){
+    @DisplayName("book 수정 Success")
+    public void modifyBookTest(){
+        // given
+        BookDto bookDto = bookDtoIn();
+        bookDto.setPublisherId(999L);
+        bookDto.setAuthorId(999L);
+        AddBookRequest request = AddBookRequest.builder()
+                .authorDto(authorDtoIn())
+                .publisherDto(publisherDtoIn())
+                .build();
+
+        lenient().when(bookRepository.findById(any(Long.class))).thenReturn(Optional.of(bookOut()));
+        lenient().when(toEntity.from(any(BookDto.class))).thenReturn(bookOut());
+        lenient().when(bookRepository.save(any(Book.class))).thenReturn(bookOut());
+        lenient().when(authorRepository.getById(any(Long.class))).thenReturn(authorOut());
+        lenient().when(publisherRepository.getById(any(Long.class))).thenReturn(publisherOut());
+        lenient().when(toDto.from(any(Book.class))).thenReturn(bookDtoOut());
+
+        // when
+        BookDto saved = bookService.changePublisherOfBook(bookOut().getId(), publisherOut().getId());
+
+
+        BookDto result = bookService.modifyBasicInfo(saved.getId(), saved.getName(), saved.getCategory());
+
+        // then
+
 
     }
 
     @Test
-    @DisplayName("book 수정 Success")
-    public void modifyBookTest(){
+    @DisplayName("book 삭제 Success")
+    public void removeBookTest(){
 
     }
 
@@ -161,8 +158,11 @@ public class BookServiceTest {
     }
 
     private Author authorOut(){
-        Author author = authorIn();
-        author.setId(999L);
+        Author author = Author.builder()
+                .country("국가")
+                .name("이름")
+                .id(999L)
+                .build();
         return author;
     }
 

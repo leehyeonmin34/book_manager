@@ -3,11 +3,10 @@ package com.leehyeonmin.book_project.domain.serviceImpl;
 import com.leehyeonmin.book_project.domain.Review;
 import com.leehyeonmin.book_project.domain.dto.ReviewDto;
 import com.leehyeonmin.book_project.domain.service.ReviewService;
-import com.leehyeonmin.book_project.domain.util.ToDto;
-import com.leehyeonmin.book_project.domain.util.ToEntity;
+import com.leehyeonmin.book_project.domain.utils.ToDto;
+import com.leehyeonmin.book_project.domain.utils.ToEntity;
 import com.leehyeonmin.book_project.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 import java.util.stream.Collectors;

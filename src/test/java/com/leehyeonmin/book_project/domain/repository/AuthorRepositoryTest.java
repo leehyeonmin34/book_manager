@@ -1,5 +1,6 @@
-package com.leehyeonmin.book_project.repository;
+package com.leehyeonmin.book_project.domain.repository;
 
+import com.leehyeonmin.book_project.repository.AuthorRepository;
 import jdk.jfr.Name;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;

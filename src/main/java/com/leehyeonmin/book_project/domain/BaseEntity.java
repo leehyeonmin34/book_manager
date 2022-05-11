@@ -2,7 +2,9 @@ package com.leehyeonmin.book_project.domain;
 
 import com.leehyeonmin.book_project.domain.listener.Auditable;
 import com.leehyeonmin.book_project.domain.listener.MyEntityListener;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Where;
 
 
@@ -12,6 +14,7 @@ import java.time.LocalDateTime;
 @Data
 @EntityListeners(MyEntityListener.class)
 @MappedSuperclass
+@NoArgsConstructor
 public class BaseEntity implements Auditable {
 
     @Column(columnDefinition = "datetime(6) default now(6) comment '실행시간'", updatable = false, nullable = false)

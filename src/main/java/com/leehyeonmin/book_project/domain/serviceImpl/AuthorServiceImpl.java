@@ -5,17 +5,15 @@ import com.leehyeonmin.book_project.domain.BookAndAuthor;
 import com.leehyeonmin.book_project.domain.dto.AuthorDto;
 import com.leehyeonmin.book_project.domain.exception.NoEntityException;
 import com.leehyeonmin.book_project.domain.service.AuthorService;
-import com.leehyeonmin.book_project.domain.util.ToDto;
-import com.leehyeonmin.book_project.domain.util.ToEntity;
+import com.leehyeonmin.book_project.domain.utils.ToDto;
+import com.leehyeonmin.book_project.domain.utils.ToEntity;
 import com.leehyeonmin.book_project.repository.AuthorRepository;
 import com.leehyeonmin.book_project.repository.BookAndAuthorRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 
@@ -64,9 +62,10 @@ public class AuthorServiceImpl extends RuntimeException implements AuthorService
         Author saved = authorRepository.save(author);
 
         //연관 bookAndAuthor 수정
+        // TODO : cascade에 의해 자동으로 수정되나?
         List<BookAndAuthor> bookAndAuthorList = bookAndAuthorRepository.getByAuthorId(dto.getId());
         bookAndAuthorList.forEach(item -> {
-            item.setAuthor(saved);
+            item.updateAuthor(saved);
             bookAndAuthorRepository.save(item);
         });
 
@@ -79,10 +78,8 @@ public class AuthorServiceImpl extends RuntimeException implements AuthorService
 
         if(authorRepository.findById(id).isPresent()){
             authorRepository.deleteById(id);
+            // 연관 bookAndAuthor는 cascade에 의해 삭제
 
-            //연관 bookAndAuthor 삭제
-            bookAndAuthorRepository.getByAuthorId(id)
-                    .stream().forEach(item -> bookAndAuthorRepository.delete(item));
             return true;
         } else {
             return false;

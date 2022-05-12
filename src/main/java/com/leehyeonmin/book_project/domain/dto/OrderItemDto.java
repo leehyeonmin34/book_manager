@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString(callSuper = true)
+@EqualsAndHashCode(callSuper=true)
 @SuperBuilder
 public class OrderItemDto  extends BaseDto{
 
@@ -24,13 +25,5 @@ public class OrderItemDto  extends BaseDto{
     private Long bookId;
 
     private Long orderInfoId;
-
-    public OrderItemDto(OrderItem orderItem){
-        id = orderItem.getId();
-        ea = orderItem.getEa();
-        arriveDate = orderItem.getArriveDate();
-        bookId = orderItem.getBook().getId();
-        orderInfoId = orderItem.getOrderInfo().getId();
-    }
 
 }

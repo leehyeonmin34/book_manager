@@ -15,6 +15,7 @@ import java.util.List;
 @AllArgsConstructor
 @ToString(callSuper = true)
 @SuperBuilder
+@EqualsAndHashCode(callSuper=true)
 public class PublisherDto extends BaseDto{
 
     private String name;

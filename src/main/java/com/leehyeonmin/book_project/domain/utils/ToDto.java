@@ -2,6 +2,7 @@ package com.leehyeonmin.book_project.domain.utils;
 
 import com.leehyeonmin.book_project.domain.*;
 import com.leehyeonmin.book_project.domain.dto.*;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 
@@ -9,8 +10,6 @@ import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 public class ToDto {
-
-    final private ModelMapper modelMapper;
 
     public AuthorDto from(Author entity){
         if(entity != null){

@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @ToString(callSuper = true)
 @SuperBuilder
+@EqualsAndHashCode(callSuper=true)
 
 public class OrderInfoDto extends BaseDto{
 
@@ -26,13 +27,7 @@ public class OrderInfoDto extends BaseDto{
 
     private Long userId;
 
+    @Builder.Default
     private List<OrderItemDto> orderItems = new ArrayList<>();
-
-    public OrderInfoDto(OrderInfo orderInfo){
-        id = orderInfo.getId();
-        orderDate = orderInfo.getOrderDate();
-        userId = orderInfo.getUser().getId();
-        orderItems = orderInfo.getOrderItems().stream().map(item -> new OrderItemDto(item)).collect(Collectors.toList());
-    }
 
 }

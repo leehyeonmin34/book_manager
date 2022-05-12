@@ -13,6 +13,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import javax.persistence.EntityManager;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @DataJpaTest
@@ -40,6 +41,18 @@ public class BookRepositoryTest {
     @Autowired
     private EntityManager em;
 
+    @Test
+    @DisplayName("Book 전부 로드 - 0개 로드")
+    public void BookRepositoryFindAllTest(){
+        // when
+        List<Book> result = bookRepository.findAll();
+
+        // then
+
+        assertThat(result).isEqualTo(Collections.<Book>emptyList());
+        assertThat(result).isNotNull();
+        assertThat(result.size()).isEqualTo(0);
+    }
 
 
     @Test

@@ -14,6 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 @SuperBuilder
 @ToString(callSuper = true)
+@EqualsAndHashCode(callSuper=true)
 public class AuthorDto extends BaseDto{
 
     private String name;

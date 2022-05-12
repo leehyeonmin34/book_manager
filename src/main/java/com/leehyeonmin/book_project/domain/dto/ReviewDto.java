@@ -3,10 +3,7 @@ package com.leehyeonmin.book_project.domain.dto;
 
 import com.leehyeonmin.book_project.domain.Book;
 import com.leehyeonmin.book_project.domain.User;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import javax.persistence.GeneratedValue;
@@ -18,6 +15,7 @@ import javax.persistence.ManyToOne;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString(callSuper = true)
+@EqualsAndHashCode(callSuper=true)
 @SuperBuilder
 
 public class ReviewDto extends BaseDto {

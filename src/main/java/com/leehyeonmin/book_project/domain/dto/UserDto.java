@@ -2,10 +2,7 @@ package com.leehyeonmin.book_project.domain.dto;
 
 import com.leehyeonmin.book_project.domain.*;
 import com.sun.istack.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import javax.persistence.*;
@@ -14,6 +11,7 @@ import java.util.Collections;
 import java.util.List;
 
 @Data
+@EqualsAndHashCode(callSuper=true)
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString(callSuper = true)

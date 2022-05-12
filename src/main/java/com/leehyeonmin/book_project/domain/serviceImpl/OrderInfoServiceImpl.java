@@ -62,20 +62,20 @@ public class OrderInfoServiceImpl implements OrderInfoService {
         }
         OrderInfo saved = orderInfoRepository.save(orderInfo);
 
-        return new OrderInfoDto(saved);
+        return toDto.from(saved);
     }
 
     @Override
     @Transactional
     public List<OrderInfoDto> findAllOrderInfo() {
         return orderInfoRepository.findAll().stream()
-                .map(orderInfo -> new OrderInfoDto(orderInfo)).collect(Collectors.toList());
+                .map(orderInfo -> toDto.from(orderInfo)).collect(Collectors.toList());
     }
 
     @Override
     @Transactional
     public OrderInfoDto findOrderInfo(Long id) {
-        return new OrderInfoDto(orderInfoRepository.getById(id));
+        return toDto.from(orderInfoRepository.getById(id));
     }
 
     @Override
@@ -93,7 +93,7 @@ public class OrderInfoServiceImpl implements OrderInfoService {
     @Transactional
     public OrderInfoDto modifyOrderInfo(OrderInfoDto orderInfoDto) {
         OrderInfo updated = orderInfoRepository.save(toEntity.from(orderInfoDto));
-        return new OrderInfoDto(updated);
+        return toDto.from(updated);
     }
 
 }

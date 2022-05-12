@@ -3,6 +3,7 @@ package com.leehyeonmin.book_project.domain.utils;
 import com.leehyeonmin.book_project.domain.*;
 import com.leehyeonmin.book_project.domain.dto.*;
 import com.leehyeonmin.book_project.repository.*;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 

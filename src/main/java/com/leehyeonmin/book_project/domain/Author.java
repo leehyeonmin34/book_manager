@@ -29,8 +29,11 @@ public class Author extends BaseEntity{
     @OneToMany(mappedBy = "author", fetch = FetchType.EAGER)
     private List<BookAndAuthor> bookAndAuthors = new ArrayList<>();
 
-    public void addBookAndAuthor(BookAndAuthor... bookAndAuthors){
-        Collections.addAll(this.bookAndAuthors, bookAndAuthors);
+    public void addBookAndAuthor(BookAndAuthor bookAndAuthor){
+        bookAndAuthors.add(bookAndAuthor);
+        if( bookAndAuthor.getAuthor() != this){
+            bookAndAuthor.updateAuthor(this);
+        }
     }
 
     public void updateBasicInfo(String name, String country){

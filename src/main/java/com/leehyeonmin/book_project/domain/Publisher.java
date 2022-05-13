@@ -27,13 +27,15 @@ public class Publisher extends BaseEntity {
 
     @Builder.Default
     @ToString.Exclude
-    @OneToMany(mappedBy = "publisher", cascade = { CascadeType.PERSIST, CascadeType.MERGE })
+    @OneToMany(mappedBy = "publisher")
     List<Book> books = new ArrayList<>();
 
     public void addBooks(Book... books) {
         Collections.addAll(this.books, books);
         for(Book book : books){
-            book.updatePublisher(this);
+            this.books.add(book);
+            if(book.getPublisher() != this)
+                book.updatePublisher(this);
         }
     }
 }

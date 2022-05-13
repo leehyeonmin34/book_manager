@@ -17,20 +17,35 @@ public class BookAndAuthor extends BaseEntity{
     @GeneratedValue
     private Long id;
 
-    @ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE })
+    @ManyToOne
     @JoinColumn(name = "AUTHOR_ID")
     private Author author;
 
-    @ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE })
+    @ManyToOne
     @JoinColumn(name = "BOOK_ID")
     private Book book;
 
     public void updateBook(Book book){
+        if(this.book != null){
+            this.book.getBookAndAuthors().remove(this);
+        }
         this.book = book;
+        if(!book.getBookAndAuthors().contains(this)) {
+            book.addBookAndAuthor(this);
+        }
     }
 
     public void updateAuthor(Author author){
+        if(this.author != null){
+            this.author.getBookAndAuthors().remove(this);
+        }
         this.author = author;
+        if(!author.getBookAndAuthors().contains(this)) {
+            author.addBookAndAuthor(this);
+        }
     }
+
+
+
 
 }

@@ -25,7 +25,7 @@ public class Review extends BaseEntity{
 
     private float score;
 
-    @ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE })
+    @ManyToOne
     @ToString.Exclude
     @JoinColumn(name = "BOOK_ID")
     private Book book;

@@ -63,7 +63,6 @@ public class User extends BaseEntity{
     private List<OrderInfo> orderInfos = new ArrayList<>();
 
     public void addOrderInfos(OrderInfo... orderInfos){
-
         Collections.addAll(this.orderInfos, orderInfos);
         for(OrderInfo orderInfo : orderInfos){
             orderInfo.setUser(this);

@@ -6,8 +6,11 @@ import org.hibernate.annotations.LazyCollectionOption;
 
 import javax.persistence.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
+import static java.util.Arrays.asList;
 
 @Entity
 @Builder
@@ -32,15 +35,11 @@ public class Book extends BaseEntity{
     @ToString.Exclude
     private List<BookAndAuthor> bookAndAuthors = new ArrayList<>();
 
-    public void addBookAndAuthor(BookAndAuthor... bookAndAuthors){
-        Collections.addAll(this.bookAndAuthors, bookAndAuthors);
-    }
-
     @Builder.Default
     private BookStatus status = new BookStatus(BookStatus.AVALABLE);
 
     @JoinColumn(name = "PUBLISHER_ID")
-    @ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE })
+    @ManyToOne
     private Publisher publisher;
 
     @OneToOne(cascade = { CascadeType.ALL })
@@ -48,11 +47,15 @@ public class Book extends BaseEntity{
     private BookReviewInfo bookReviewInfo;
 
     @Builder.Default
-    @OneToMany(mappedBy = "book", fetch = FetchType.LAZY, cascade = {CascadeType.ALL}, orphanRemoval = true)
+    @OneToMany(mappedBy = "book", fetch = FetchType.LAZY)
     private List<Review> reviews = new ArrayList<>();
 
     public void updatePublisher(Publisher publisher){
+        if(this.publisher != null){
+            this.publisher.getBooks().remove(this);
+        }
         this.publisher = publisher;
+        publisher.addBooks(this);
     }
 
     public void updateBasicInfo(String name, String category){
@@ -62,6 +65,13 @@ public class Book extends BaseEntity{
 
     public void updateStatus(int code){
         this.status.updateBookStatus(code);
+    }
+
+    public void addBookAndAuthor(BookAndAuthor bookAndAuthor){
+        this.getBookAndAuthors().add(bookAndAuthor);
+        if( bookAndAuthor.getBook() != this){
+            bookAndAuthor.updateBook(this);
+        }
     }
 
 

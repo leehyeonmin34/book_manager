@@ -87,7 +87,6 @@ public class BookServiceImpl implements BookService {
         bookAndAuthorRepository.save(bookAndAuthor);
 
 
-//        EntityManager em = emf.createEntityManager();
         em.flush(); // bookAndAuthor를 DB에 저장, book, author에도 연관관계 적용됨
         em.clear(); // entity cache 제거
         Book result = bookRepository.getById(saved.getId()); // author가 추가된 book을 다시 로드
@@ -110,7 +109,7 @@ public class BookServiceImpl implements BookService {
                     bookAndAuthorRepository.save(item);
                     // 연관된 bookAndAuthor들의 book 수정
                 });
-//        EntityManager em = emf.createEntityManager();
+
         em.flush(); // bookAndAuthor가 DB에 저장되고, book과 author가 각각 bookAndAuthor를 가짐
         em.clear(); // 영속성 캐시 제거
         Book result = bookRepository.getById(book.getId()); // 새 bookAndAuthor가 적용된 book 다시 로드
@@ -125,25 +124,24 @@ public class BookServiceImpl implements BookService {
     }
 
 
-    @Override
-    public BookDto changeAuthorOfBook(Long bookId, Long authorId) throws BusinessException{
-        //book, author 로드
-        Book book = repoUtils.getOneElseThrowException(bookRepository, bookId);
-        Author author = repoUtils.getOneElseThrowException(authorRepository, authorId);
-
-        // book 내의 bookAndAuthor 수정요청 -> book과 author 모두 수정됨 (cascade)
-        book.getBookAndAuthors()
-                .forEach(item -> {
-                    item.updateAuthor(author);
-                    bookAndAuthorRepository.save(item);
-                });
-//        EntityManager em = emf.createEntityManager();
-        em.flush(); // DB 적용 완료
-        em.clear(); // 영속성 캐시 제거
-        Book result = bookRepository.getById(book.getId()); // 적용된 book 불러오기
-        return toDto.from(result);
-
-    }
+//    @Override
+//    public BookDto changeAuthorOfBook(Long bookId, Long authorId) throws BusinessException{
+//        //book, author 로드
+//        Book book = repoUtils.getOneElseThrowException(bookRepository, bookId);
+//        Author author = repoUtils.getOneElseThrowException(authorRepository, authorId);
+//
+//        // book 내의 bookAndAuthor 수정요청 -> book과 author 모두 수정됨 (cascade)
+//        book.getBookAndAuthors()
+//                .forEach(item -> {
+//                    item.updateAuthor(author);
+//                    bookAndAuthorRepository.save(item);
+//                });
+////        EntityManager em = emf.createEntityManager();
+//        em.flush(); // DB 적용 완료
+//        em.clear(); // 영속성 캐시 제거
+//        Book result = bookRepository.getById(book.getId()); // 적용된 book 불러오기
+//        return toDto.from(result);
+//    }
 
     @Override
     public BookDto changePublisherOfBook(Long bookId, Long publisherId) throws BusinessException{
@@ -161,11 +159,7 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public void removeBook(Long id) throws BusinessException{
-        if(bookRepository.existsById(id)){
-            bookRepository.deleteById(id);
-        } else {
-            throw new EntityNotFoundException("no book entity for id : " + id);
-        }
+        repoUtils.deleteOneElseThrowException(bookRepository, id);
     }
 
     @Override

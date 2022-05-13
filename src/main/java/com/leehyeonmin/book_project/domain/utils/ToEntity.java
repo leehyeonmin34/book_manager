@@ -135,7 +135,7 @@ public class ToEntity{
         if (dto == null){
             return null;
         } else if (dto.getId() != null) {
-            bookAndAuthors = bookAndAuthorRepository.getByAuthorId(dto.getId());
+            bookAndAuthors = bookAndAuthorRepository.findByAuthorId(dto.getId());
         }
         entity = Author.builder()
             .id(dto.getId())

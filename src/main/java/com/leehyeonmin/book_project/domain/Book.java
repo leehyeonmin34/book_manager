@@ -27,7 +27,7 @@ public class Book extends BaseEntity{
 
     private String category;
 
-    @OneToMany(mappedBy = "book", fetch = FetchType.LAZY, cascade = { CascadeType.ALL})
+    @OneToMany(mappedBy = "book", fetch = FetchType.LAZY)
     @Builder.Default
     @ToString.Exclude
     private List<BookAndAuthor> bookAndAuthors = new ArrayList<>();
@@ -48,7 +48,7 @@ public class Book extends BaseEntity{
     private BookReviewInfo bookReviewInfo;
 
     @Builder.Default
-    @OneToMany(mappedBy = "book", fetch = FetchType.LAZY, cascade = {CascadeType.ALL})
+    @OneToMany(mappedBy = "book", fetch = FetchType.LAZY, cascade = {CascadeType.ALL}, orphanRemoval = true)
     private List<Review> reviews = new ArrayList<>();
 
     public void updatePublisher(Publisher publisher){

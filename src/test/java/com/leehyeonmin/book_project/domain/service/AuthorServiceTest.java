@@ -5,15 +5,17 @@ import com.leehyeonmin.book_project.domain.Author;
 import com.leehyeonmin.book_project.domain.Book;
 import com.leehyeonmin.book_project.domain.BookAndAuthor;
 import com.leehyeonmin.book_project.domain.dto.AuthorDto;
+import com.leehyeonmin.book_project.domain.exception.BusinessException.DuplicateEntityException.DuplicateEntityException;
+import com.leehyeonmin.book_project.domain.exception.BusinessException.EntityNotFoundException.EntityNotFoundException;
 import com.leehyeonmin.book_project.domain.exception.NoEntityException;
 import com.leehyeonmin.book_project.domain.serviceImpl.AuthorServiceImpl;
+import com.leehyeonmin.book_project.domain.utils.RepoUtils;
 import com.leehyeonmin.book_project.domain.utils.ToDto;
 import com.leehyeonmin.book_project.domain.utils.ToEntity;
 import com.leehyeonmin.book_project.repository.AuthorRepository;
 import com.leehyeonmin.book_project.repository.BookAndAuthorRepository;
 import com.leehyeonmin.book_project.repository.BookRepository;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,10 +25,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -52,13 +55,12 @@ public class AuthorServiceTest {
     @Mock
     private ToDto toDto;
 
+    @Mock
+    private RepoUtils repoUtils;
 
 
-    @BeforeEach
-    public void init(){
 
 
-    }
 
     @Test
     @DisplayName("author 추가 (성공)")
@@ -83,13 +85,6 @@ public class AuthorServiceTest {
         assertThat(result.getCountry()).isEqualTo(givenDtoWithoutId.getCountry());
     }
 
-    @Test
-    @DisplayName("author 추가 (실패)")
-    public void addTestFail(){
-        // then
-        assertThatThrownBy(() -> authorService.addAuthor(null))
-                .isInstanceOf(NoEntityException.class);
-    }
 
     @Test
     @DisplayName("author 제거 테스트 (성공)")
@@ -99,27 +94,35 @@ public class AuthorServiceTest {
         AuthorDto givenDtoWithId = givenDtoWithId();
         List<BookAndAuthor> givenBookAndAuthorList = givenBookAndAuthorListWithId();
 
-        lenient().when(authorRepository.findById(any(Long.class))).thenReturn(Optional.of(givenAuthorWithId));
-        lenient().when(bookAndAuthorRepository.getByAuthorId(any(Long.class))).thenReturn(givenBookAndAuthorList);
+        lenient().when(bookAndAuthorRepository.findByAuthorId(any(Long.class))).thenReturn(givenBookAndAuthorList);
 
         //when
-        Boolean result = authorService.removeAuthor(givenDtoWithId.getId());
+        authorService.removeAuthor(givenDtoWithId.getId());
 
         //then
+        verify(bookAndAuthorRepository, times(1)).deleteAllById(any(List.class));
         verify(authorRepository, times(1)).deleteById(any(Long.class));
-        verify(bookAndAuthorRepository, times(givenBookAndAuthorList.size())).delete(any(BookAndAuthor.class));
-        assertThat(result).isEqualTo(true);
     }
 
     @Test
-    @DisplayName("author 제거 테스트 (실패)")
+    @DisplayName("author 제거 테스트 (0개 bookAndAuthor)")
     public void removeTestFail(){
-        assertThatThrownBy(() -> authorService.removeAuthor(null))
-                .isInstanceOf(NoEntityException.class);
+
+        // GIVEN
+        lenient().when(bookAndAuthorRepository.findByAuthorId(any(Long.class))).thenReturn(Collections.emptyList());
+
+        //when
+        authorService.removeAuthor(999L);
+
+        //then
+        verify(bookAndAuthorRepository, times(1)).deleteAllById(any(List.class));
+        verify(authorRepository, times(1)).deleteById(any(Long.class));
+        assertThatCode( () -> authorService.removeAuthor(999L)).doesNotThrowAnyException();
     }
 
+
     @Test
-    @DisplayName("author 수정 테스트 (성공)")
+    @DisplayName("author 기본 정보 수정 테스트 (성공)")
     public void modifyTest(){
         // GIVEN
         Author givenAuthorWithId = givenAuthorWithId();
@@ -127,34 +130,77 @@ public class AuthorServiceTest {
 
         AuthorDto modifiedAuthorDto = givenDtoWithId();
         modifiedAuthorDto.setCountry("다른 나라");
-        Author modifiedAuthor = givenAuthorWithId();
+        Author modifiedAuthor = Author.builder()
+                        .bookAndAuthors(givenBookAndAuthorListWithId())
+                                .id(999L)
+                                        .name("작가 이름")
+                                                .country("나라")
+                                                        .build();
         modifiedAuthor.updateBasicInfo(modifiedAuthorDto.getName(), modifiedAuthorDto.getCountry());
 
-        lenient().when(authorRepository.findById(any(Long.class))).thenReturn(Optional.of(givenAuthorWithId));
-        lenient().when(toEntity.from(any(AuthorDto.class))).thenReturn(modifiedAuthor);
+        lenient().when(repoUtils.getOneElseThrowException(any(AuthorRepository.class), any(Long.class)))
+                .thenReturn(givenAuthorWithId);
         lenient().when(authorRepository.save(any(Author.class))).thenReturn(modifiedAuthor);
-        lenient().when(bookAndAuthorRepository.getByAuthorId(any(Long.class))).thenReturn(givenBookAndAuthorList);
         lenient().when(bookAndAuthorRepository.save(any(BookAndAuthor.class))).thenReturn(givenBookAndAuthorWithId());
         lenient().when(toDto.from(any(Author.class))).thenReturn(modifiedAuthorDto);
 
         //when
-        AuthorDto result = authorService.modifyAuthor(modifiedAuthorDto);
+        AuthorDto result = authorService.modifyBasicInfo(modifiedAuthorDto.getId(), "다른 이름", "다른 나라");
 
         //then
-        assertThat(result.getName()).isEqualTo(modifiedAuthorDto.getName());
-        assertThat(result.getCountry()).isEqualTo(modifiedAuthorDto.getCountry());
-        assertThat(result.getId()).isEqualTo(modifiedAuthorDto.getId());
         verify(bookAndAuthorRepository, times(givenBookAndAuthorList.size())).save(any(BookAndAuthor.class));
-        verify(bookAndAuthorRepository, times(1)).getByAuthorId(any(Long.class));
-
     }
 
     @Test
     @DisplayName("author 수정 테스트 (실패)")
     public void modifyTestFail(){
-        assertThatThrownBy(() -> authorService.modifyAuthor(null))
-                .isInstanceOf(NoEntityException.class);
+
+        // given
+        lenient().when(repoUtils.getOneElseThrowException(any(AuthorRepository.class), any(Long.class)))
+                .thenThrow(EntityNotFoundException.class);
+
+        // when - then
+        assertThatThrownBy(() -> authorService.modifyBasicInfo(999L, "다른 이름", "다른 나라"))
+                .isInstanceOf(EntityNotFoundException.class);
     }
+
+    @Test
+    @DisplayName("author에 book 추가 (성공)")
+    public void addBookToAuthorSuccess(){
+        //given
+        lenient().when(bookAndAuthorRepository.findByAuthorIdAndBookId(any(Long.class), any(Long.class))).thenReturn(Optional.empty());
+        lenient().when(repoUtils.getOneElseThrowException(any(AuthorRepository.class), any(Long.class))).thenReturn(Author.builder().build());
+        lenient().when(repoUtils.getOneElseThrowException(any(BookRepository.class), any(Long.class))).thenReturn(Book.builder().build());
+
+
+        //when
+        authorService.addBookToAuthor(999L, 999L);
+
+        //then
+        verify(bookAndAuthorRepository, times(1)).save(any(BookAndAuthor.class));
+    }
+
+    @Test
+    @DisplayName("author에 book 추가 (실패)")
+    public void addBookToAuthorFail(){
+        //
+        lenient().when(bookAndAuthorRepository.findByAuthorIdAndBookId(any(Long.class), any(Long.class))).thenReturn(Optional.of(givenBookAndAuthorWithId()));
+
+        // when - then
+        assertThatThrownBy(() -> authorService.addBookToAuthor(999L, 999L))
+                .isInstanceOf(DuplicateEntityException.class);
+    }
+
+    @Test
+    @DisplayName("author에 book 삭제 (실패)")
+    public void removeBookFromAuthorFail(){
+        lenient().when(bookAndAuthorRepository.findByAuthorIdAndBookId(any(Long.class), any(Long.class))).thenReturn(Optional.empty());
+
+        // when - then
+        assertThatThrownBy(() -> authorService.removeBookFromAuthor(999L, 999L))
+                .isInstanceOf(EntityNotFoundException.class);
+    }
+
 
 
     public AuthorDto givenDtoWithoutId(){

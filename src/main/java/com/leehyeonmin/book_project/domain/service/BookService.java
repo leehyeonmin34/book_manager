@@ -22,7 +22,7 @@ public interface BookService {
 
     public void changeBookStatus(Long id, int statusCode);
 
-    public BookDto changeAuthorOfBook(Long bookId, Long authorId);
+//    public BookDto changeAuthorOfBook(Long bookId, Long authorId);
 
     public BookDto changePublisherOfBook(Long bookId, Long publisherId);
 

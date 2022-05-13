@@ -2,6 +2,7 @@ package com.leehyeonmin.book_project.domain.utils;
 
 import com.leehyeonmin.book_project.domain.BaseEntity;
 import com.leehyeonmin.book_project.domain.dto.BaseDto;
+import com.leehyeonmin.book_project.domain.exception.BusinessException.DuplicateEntityException.DuplicateEntityException;
 import com.leehyeonmin.book_project.domain.exception.BusinessException.EntityNotFoundException.EntityNotFoundException;
 import com.leehyeonmin.book_project.domain.exception.ErrorCode;
 import com.leehyeonmin.book_project.domain.exception.BusinessException.BusinessException;
@@ -22,8 +23,30 @@ public class RepoUtils {
 
     public <R extends JpaRepository<E, Long>, E extends BaseEntity> E getOneElseThrowException(R repository, Long id) throws EntityNotFoundException{
         return repository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("no entity for repoUtils of" + repository.getClass().toString() + " from id " + id));
+                .orElseThrow(() -> new EntityNotFoundException("no entity found by" + repository.getClass().getName() + " from id " + id));
     }
+
+    public <R extends JpaRepository<E, Long>, E extends BaseEntity> void deleteOneElseThrowException(R repository, Long id) throws EntityNotFoundException{
+        if(repository.existsById(id)){
+            repository.deleteById(id);
+        } else {
+            throw new EntityNotFoundException("no entity found by" + repository.getClass().getName() + " for id : " + id);
+        }
+    }
+
+    public <R extends JpaRepository<E, Long>, E extends BaseEntity> void validateDuplicate(R repository, Long id) throws DuplicateEntityException{
+        if(!repository.existsById(id)){
+            throw new EntityNotFoundException("duplicate entity found by" + repository.getClass().getName() + " for id : " + id);
+        }
+    }
+
+    public <R extends JpaRepository<E, Long>, E extends BaseEntity> void validateExist(R repository, Long id) throws DuplicateEntityException{
+        if(repository.existsById(id)){
+            throw new EntityNotFoundException("not existing entity searched by" + repository.getClass().getName() + " for id : " + id);
+        }
+    }
+
+
 
 
 //    public <R extends JpaRepository<E, Long>, E extends BaseEntity, D extends BaseDto> E getOrCreate(R repository, D dto){

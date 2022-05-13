@@ -5,8 +5,8 @@ import com.leehyeonmin.book_project.domain.exception.BusinessException.EntityNot
 import com.leehyeonmin.book_project.domain.utils.RepoUtils;
 import com.leehyeonmin.book_project.repository.BookRepository;
 import lombok.RequiredArgsConstructor;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
@@ -62,8 +62,31 @@ public class RepoUtilsTest {
         // then
         assertThat(result).isNotNull();
         System.out.println(result);
+
     }
 
+    @Test
+    @DisplayName("deleteOneElseThrowException 실패")
+    public void deleteOneElseThrowExceptionTestFail(){
+        //given
+        when(bookRepository.existsById(any(Long.class))).thenReturn(false);
+
+        // when - then
+        assertThatThrownBy(()-> repoUtils.deleteOneElseThrowException(bookRepository, 1L))
+                .isInstanceOf(EntityNotFoundException.class);
+    }
+
+    @Test
+    @DisplayName("deleteOneElseThrowException 성공")
+    public void deleteOneElseThrowExceptionTestSuccess(){
+
+        //given
+        when(bookRepository.existsById(any(Long.class))).thenReturn(true);
+
+        // when - then
+        assertThatCode(() -> repoUtils.deleteOneElseThrowException(bookRepository, 1L))
+                .doesNotThrowAnyException();
+    }
 
 
 

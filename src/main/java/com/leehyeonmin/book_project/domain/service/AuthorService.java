@@ -9,14 +9,18 @@ public interface AuthorService {
 
 
 
-    public List<AuthorDto> findAllAuthors();
+    public List<AuthorDto> getAllAuthors();
 
-    public AuthorDto findAuthor(Long id);
+    public AuthorDto getAuthor(Long id);
 
     public AuthorDto addAuthor(AuthorDto dto);
 
-    public AuthorDto modifyAuthor(AuthorDto dto);
+    public AuthorDto modifyBasicInfo(Long id, String name, String country);
 
-    public Boolean removeAuthor(Long id);
+    public void addBookToAuthor(Long authorId, Long bookId);
+
+    public void removeBookFromAuthor(Long authorId, Long bookId);
+
+    public void removeAuthor(Long id);
 
 }

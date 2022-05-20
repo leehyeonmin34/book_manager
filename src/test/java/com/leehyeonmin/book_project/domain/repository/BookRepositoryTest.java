@@ -1,206 +1,314 @@
 package com.leehyeonmin.book_project.domain.repository;
 
 import com.leehyeonmin.book_project.domain.*;
-import static org.assertj.core.api.Assertions.assertThat;
-
-import com.leehyeonmin.book_project.repository.*;
+import com.leehyeonmin.book_project.domain.dto.BookDto;
+import com.leehyeonmin.book_project.domain.utils.RepoUtils;
+import com.leehyeonmin.book_project.domain.utils.ToDto;
+import com.leehyeonmin.book_project.domain.utils.ToEntity;
+import com.leehyeonmin.book_project.repository.AuthorRepository;
+import com.leehyeonmin.book_project.repository.BookAndAuthorRepository;
+import com.leehyeonmin.book_project.repository.BookRepository;
+import com.leehyeonmin.book_project.repository.PublisherRepository;
+import io.swagger.annotations.Authorization;
+import lombok.RequiredArgsConstructor;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import javax.persistence.Transient;
+
+import static org.assertj.core.api.Assertions.*;
+
 
 @DataJpaTest
+@RequiredArgsConstructor
 @ExtendWith(MockitoExtension.class)
 public class BookRepositoryTest {
 
     @Autowired
-    private BookRepository bookRepository;
+    BookRepository bookRepository;
 
     @Autowired
-    private BookReviewInfoRepository bookReviewInfoRepository;
+    BookAndAuthorRepository bookAndAuthorRepository;
 
     @Autowired
-    private PublisherRepository publisherRepository;
+    AuthorRepository authorRepository;
 
     @Autowired
-    private BookAndAuthorRepository bookAndAuthorRepository;
+    PublisherRepository publisherRepository;
 
     @Autowired
-    private ReviewRepository reviewRepository;
+    EntityManager em;
 
-    @Autowired
-    private AuthorRepository authorRepository;
+//    @Autowired
+//    ToEntity toEntity;
 
-    @Autowired
-    private EntityManager em;
+//    @Autowired
+//    ToDto toDto;
 
-    @Test
-    @DisplayName("Book 전부 로드 - 0개 로드")
-    public void BookRepositoryFindAllTest(){
-        // when
-        List<Book> result = bookRepository.findAll();
-
-        // then
-
-        assertThat(result).isEqualTo(Collections.<Book>emptyList());
-        assertThat(result).isNotNull();
-        assertThat(result.size()).isEqualTo(0);
+    @BeforeEach
+    public void beforeEach(){
+        createEntities();
     }
 
 
-    @Test
-    @DisplayName("Book 저장 ")
-    public void BookRepositorySaveTest(){
-        //given
-        Publisher publisher = Publisher.builder().name("출판사").build();
-        BookReviewInfo bookReviewInfo = BookReviewInfo.builder().build();
-        Author authorMock = Author.builder().name("작가이름").build();
-        Author author = authorRepository.save(authorMock);
-//        BookAndAuthor bookAndAuthor = BookAndAuthor.builder().author(author).build();
-//        List<BookAndAuthor> bookAndAuthors = new ArrayList<>();
-//        bookAndAuthors.add(bookAndAuthor);
+    private Long bookId;
+    private Long publisherId;
+    private Long author1Id;
+    private Long author2Id;
+    private Long bookAndAuthorId;
 
-        Book book = Book.builder()
-                .name("이름")
-                .category("카테고리")
-                .bookReviewInfo(bookReviewInfo) //cascade로 인해 자동으로 repository 통해 save 될 것
-//                .bookAndAuthors(bookAndAuthors) //cascade로 인해 자동으로 repository 통해 save 될 것
-                .publisher(publisher) //cascade로 인해 자동으로 repository 통해 save 될 것
-                .build();
-
-        // when
-        Book result = bookRepository.save(book);
-
-        BookAndAuthor bookAndAuthor = BookAndAuthor.builder().author(author).book(result).build();
-        bookAndAuthorRepository.save(bookAndAuthor);
-        //bookAndAuthor 생성 및 save -> book, author에도 해당 bookAndAuthor 추가됨
-        em.flush();
-        em.clear();
-        result = bookRepository.getById(result.getId());
-        author = authorRepository.getById(author.getId());
-//        Author result2 = authorRepository.getById(author.getId());
-
-        //then
-        assertThat(result.getBookReviewInfo().getId()).isNotNull(); // bookReviewInfo가 정상적으로 db에 저장
-        assertThat(result.getId()).isNotNull(); // book이 정상적으로 db에 저장
-        assertThat(result.getCategory()).isEqualTo("카테고리");
-        assertThat(result.getName()).isEqualTo("이름");
-        assertThat(result.getPublisher().getId()).isNotNull(); // publisher가 정상적으로 DB에 저장
-        assertThat(result.getPublisher().getName()).isEqualTo("출판사");
-        assertThat(result.getBookAndAuthors().get(0).getId()).isNotNull(); //bookAndAuthor가 정상적으로 DB에 저장
-        assertThat(result.getBookAndAuthors().get(0).getAuthor().getName()).isEqualTo("작가이름");
-        Long authorId = result.getBookAndAuthors().get(0).getAuthor().getId();
-        assertThat(authorRepository.getById(authorId)).isNotNull(); // author가 정상적으로 DB에 저장
-        assertThat(author.getBookAndAuthors().get(0).getId()).isEqualTo(result.getBookAndAuthors().get(0).getId());
-        // author와 book이 갖고있는 bookAndAuthor가 동일함
-        assertThat(result.getBookAndAuthors().get(0).getBook().getName()).isEqualTo("이름");
-        assertThat(result.getStatus().getDescription()).isEqualTo("구매 가능");
-        assertThat(author.getBookAndAuthors().size()).isNotEqualTo(0);
-
+    @AfterEach
+    public void afterEach(){
+        bookAndAuthorRepository.deleteAll();
+        bookRepository.deleteAll();
+        authorRepository.deleteAll();
+        publisherRepository.deleteAll();
     }
 
-    @Test
-    @DisplayName("Book 수정 Success")
-    public void BookRepositoryUpdateSuccessTest() {
-
-        //given
-        Author author = Author.builder().name("작가이름").build();
-        Publisher publisher = Publisher.builder().name("출판사").build();
-        BookReviewInfo bookReviewInfo = BookReviewInfo.builder().build();
-        Review review = Review.builder().content("리뷰내용").score(4.5f).build();
-        List<Review> reviews = new ArrayList<>();
-        reviews.add(review);
-
+    private void createEntities(){
         Book book = Book.builder()
-                .name("이름")
-                .category("카테고리")
-                .bookReviewInfo(bookReviewInfo) //cascade로 인해 자동으로 repository 통해 save 될 것
-                .publisher(publisher) //cascade로 인해 자동으로 repository 통해 save 될 것
-                .reviews(reviews)
+                .name("책")
                 .build();
+        Publisher publisher = Publisher.builder()
+                .name("출판사")
+                .build();
+        Author author1 = Author.builder()
+                .name("작가1")
+                .build();
+        Author author2 = Author.builder()
+                .name("작가2")
+                .build();
+        BookAndAuthor bookAndAuthor = BookAndAuthor.builder().build();
 
-        // when
-        Book saved = bookRepository.save(book);
-        BookAndAuthor bookAndAuthor = BookAndAuthor.builder().author(author).book(saved).build();
+        //각 엔티티 DB에 저장 및 연관관계 설정
+        Book savedBook = bookRepository.save(book);
+        Publisher savedPublisher = publisherRepository.save(publisher);
+        Author savedAuthor1 = authorRepository.save(author1);
+        Author savedAuthor2 = authorRepository.save(author2);
+        bookAndAuthor.updateBook(book);
+        bookAndAuthor.updateAuthor(author1);
         BookAndAuthor savedBookAndAuthor = bookAndAuthorRepository.save(bookAndAuthor);
-        saved.getReviews().get(0).setContent("리뷰 변경");
-        saved.updateBasicInfo("다른 이름", saved.getCategory());
 
-        em.flush();
+        bookId = savedBook.getId();
+        publisherId = savedPublisher.getId();
+        author1Id = savedAuthor1.getId();
+        author2Id = savedAuthor1.getId();
+        bookAndAuthorId = savedBookAndAuthor.getId();
 
-        Book modified = bookRepository.save(saved);
-        bookAndAuthor.updateBook(modified);
-        bookAndAuthorRepository.save(bookAndAuthor);
 
-        em.flush();
-        em.clear();
-
-        Book bookResult = bookRepository.getById(saved.getId());
-        Author authorResult = authorRepository.getById(savedBookAndAuthor.getAuthor().getId());
-
-        // then
-        assertThat(modified.getId()).isEqualTo(saved.getId()); // 동일한 id 가짐
-        assertThat(modified.getName()).isEqualTo("다른 이름"); // 수정된 내용 잘 반영됨
-        assertThat(modified.getReviews().get(0).getContent()).isEqualTo("리뷰 변경");
-        assertThat(reviewRepository.getById(saved.getReviews().get(0).getId()).getContent()).isEqualTo("리뷰 변경"); // DB에도 잘 반영됨
-        assertThat(bookAndAuthorRepository.getById(savedBookAndAuthor.getId()).getBook().getName()).isEqualTo(modified.getName()); // bookAndAuthor에도 잘 반영됨
-        assertThat(authorResult.getBookAndAuthors().get(0).getBook().getName()).isEqualTo(modified.getName()); //author의 bookAndAuthor 에도 잘 반영됨
     }
 
     @Test
-    @DisplayName("Book 삭제 Success")
-    public void BookRepositoryRemoveSuccessTest(){
+    @DisplayName("updatePublisher - publisher 없었을 때")
+    public void updatePublisherTest(){
+        // given
+        Book book = bookRepository.getById(bookId);
+        Publisher publisher = publisherRepository.getById(publisherId);
 
-        //given
-        Author author = Author.builder().name("작가이름").build();
-        Publisher publisher = Publisher.builder().name("출판사").build();
-        BookReviewInfo bookReviewInfo = BookReviewInfo.builder().build();
-        Review review = Review.builder().content("리뷰내용").score(4.5f).build();
-        List<Review> reviews = new ArrayList<>();
-        reviews.add(review);
+        // when
+        book.updatePublisher(publisher);
 
-        Book book = Book.builder()
-                .name("이름")
+        // then
+        Book bookOnDB = bookRepository.getById(book.getId());
+        Publisher publisherOnDB = publisherRepository.getById(publisher.getId());
+
+        assertThat(bookOnDB.getPublisher()).isNotNull();
+        assertThat(bookOnDB.getPublisher().getName()).isEqualTo(publisher.getName());
+        assertThat(publisherOnDB.getBooks().contains(bookOnDB));
+    }
+
+    @Test
+    @DisplayName("updatePublisher - publisher 있었을 때")
+    public void updatePublisherTest2(){
+        // given
+        Book book = bookRepository.getById(bookId);
+        Publisher publisher = publisherRepository.getById(publisherId);
+        Publisher newPub = publisherRepository.save(
+                Publisher.builder()
+                        .name("새 출판사")
+                        .build()
+        );
+
+        // when
+        book.updatePublisher(publisher); // 출판사 처음 매칭
+        book.updatePublisher(newPub); // 출판사 변경
+
+        // then
+        Book bookOnDB = bookRepository.getById(book.getId());
+        Publisher oldPubOnDB = publisherRepository.getById(publisher.getId());
+        Publisher newPubOnDB = publisherRepository.getById(newPub.getId());
+
+        assertThat(bookOnDB.getPublisher().getName()).isEqualTo(newPub.getName());
+        assertThat(newPubOnDB.getBooks().contains(bookOnDB));
+        assertThat(!oldPubOnDB.getBooks().contains(bookOnDB));
+
+    }
+
+    @Test
+    @DisplayName("updateBasicInfo - 기존 엔티티 (영속)")
+    public void updateBasicInfo(){
+        // given
+        Book book = bookRepository.getById(bookId);
+        String changedName = "다른 이름";
+
+        // when
+        book.updateBasicInfo(changedName, "다른 카테고리"); // 정보 수정
+
+        // then
+        Book bookOnDB = bookRepository.getById(bookId);
+        Publisher publisherOnDB = publisherRepository.getById(publisherId);
+        BookAndAuthor bookAndAuthorOnDB = bookAndAuthorRepository.getById(bookAndAuthorId);
+        Author authorOnDB = authorRepository.getById(author1Id);
+
+        // 모든 연관 엔티티에서 수정됨
+        assertThat(bookOnDB.getName()).isEqualTo(changedName);
+        assertThat(publisherOnDB.getBooks().contains(bookOnDB));
+        assertThat(bookAndAuthorOnDB.getBook().getName()).isEqualTo(changedName);
+        assertThat(authorOnDB.getBookAndAuthors().get(0).getBook().getName()).isEqualTo(changedName);
+    }
+
+    @Test
+    @DisplayName("updateBasicInfo - 새 엔티티 (비영속)")
+    public void updateBasicInfo2(){
+        // given
+        Book book = Book.builder().name("새 책").build();
+        Publisher publisher = publisherRepository.getById(publisherId);
+
+        // when
+        book.updatePublisher(publisher);
+        book.updateBasicInfo("다른 이름", "다른 카테고리"); // 정보 수정
+        em.persist(book);
+
+        // then
+        Book bookOnDB = bookRepository.getById(book.getId());
+        Publisher publisherOnDB = publisherRepository.getById(publisher.getId());
+
+        assertThat(bookOnDB.getName()).isEqualTo("다른 이름");
+        assertThat(publisherOnDB.getBooks().contains(bookOnDB)).isTrue();
+    }
+
+    @Test
+    @DisplayName("비영속상태의 새 엔티티 퍼시스트 후 해당 아이디 접근")
+    public void updateBasicInfo3(){
+        // given
+        Book book = Book.builder().name("새 책").build();
+
+        // when
+        book.updateBasicInfo("다른 이름", "다른 카테고리"); // 정보 수정
+        em.persist(book);
+
+        // then
+        Book bookOnDB = bookRepository.getById(book.getId());
+        assertThat(bookOnDB.getName()).isEqualTo("다른 이름");
+    }
+
+    @Test
+    @DisplayName("book에 author 추가")
+    public void addAuthor(){
+        // given
+        Author author1 = authorRepository.getById(author1Id);
+        Author author2 = authorRepository.getById(author2Id);
+        Book book = bookRepository.getById(bookId);
+        BookAndAuthor bookAndAuthor = BookAndAuthor.builder().book(book).author(author1).build();
+//        BookAndAuthor savedBAA = bookAndAuthorRepository.save(bookAndAuthor);
+
+        // when
+        book.addBookAndAuthor(bookAndAuthor);
+        author1.addBookAndAuthor(bookAndAuthor);
+        BookAndAuthor BAA_DB = bookAndAuthorRepository.save(bookAndAuthor);
+
+        // then
+        Book bookDB = bookRepository.getById(bookId);
+        Author authorDB = authorRepository.getById(author1Id);
+
+        assertThat(bookDB.getBookAndAuthors().contains(bookAndAuthor)).isTrue();
+        assertThat(authorDB.getBookAndAuthors().contains(bookAndAuthor)).isTrue();
+        assertThat(bookDB.getBookAndAuthors().get(0).getAuthor()).isNotNull();
+        assertThat(authorDB.getBookAndAuthors().get(0).getBook()).isNotNull();
+        assertThat(BAA_DB).isNotNull();
+    }
+
+    @Test
+    @DisplayName("book에서 author 제거")
+    public void removeAuthor(){
+        // given
+        Author author1 = authorRepository.getById(author1Id);
+        Book book = bookRepository.getById(bookId);
+        BookAndAuthor bookAndAuthor = BookAndAuthor.builder().build();
+
+        bookAndAuthor.updateBook(book);
+        bookAndAuthor.updateAuthor(author1);
+        BookAndAuthor BAA_DB = bookAndAuthorRepository.save(bookAndAuthor);
+
+        bookAndAuthorRepository.findAll().forEach(System.out::println);
+
+        // when
+        book.getBookAndAuthors().remove(bookAndAuthor);
+        author1.getBookAndAuthors().remove(bookAndAuthor);
+        bookAndAuthorRepository.deleteById(BAA_DB.getId());
+
+
+        // then
+        Book bookDB = bookRepository.getById(bookId);
+        Author authorDB = authorRepository.getById(author1Id);
+
+
+        assertThat(bookDB.getBookAndAuthors().contains(bookAndAuthor)).isFalse();
+        assertThat(authorDB.getBookAndAuthors().contains(bookAndAuthor)).isFalse();
+        assertThat(bookDB.getBookAndAuthors().size()).isEqualTo(1);
+        assertThat(authorDB.getBookAndAuthors().size()).isEqualTo(1);
+        assertThat(bookAndAuthorRepository.findAll().size()).isEqualTo(1);
+//        assertThat(BAA_DB).isNotNull();
+    }
+
+    @Test
+    @DisplayName("bookService.addBook")
+    public void bookServiceAddBook(){
+
+        // given
+        Author author = authorRepository.getById(author1Id);
+        Publisher publisher = publisherRepository.getById(publisherId);
+        BookDto dto = BookDto.builder()
+                .name("책 이름")
                 .category("카테고리")
-                .bookReviewInfo(bookReviewInfo) //cascade로 인해 자동으로 repository 통해 save 될 것
-                .publisher(publisher) //cascade로 인해 자동으로 repository 통해 save 될 것
-                .reviews(reviews) //cascade로 인해 자동으로 repository를 통해 save 될 것
+                .publisherId(publisherId)
+                .authorId(author1Id)
                 .build();
 
         // when
-        Book saved = bookRepository.save(book);
-        BookAndAuthor bookAndAuthor = BookAndAuthor.builder().book(saved).author(author).build();
+
+        BookReviewInfo bookReviewInfo = BookReviewInfo.builder().build();
+
+        // 연관관계 필요 없는 정보 바로 셋
+        Book book = Book.builder()
+                .name(dto.getName())
+                .category(dto.getCategory())
+                .bookReviewInfo(bookReviewInfo) //cascade로 인해 자동으로 repository 통해 save 될 것
+                .build();
+        bookRepository.save(book);
+
+        // 연관관계 필요한 정보 설정
+        book.updatePublisher(publisher);
+        publisher.addBooks(book);
+
+        BookAndAuthor bookAndAuthor = BookAndAuthor.builder().build();
+        bookAndAuthor.updateBook(book);
+        bookAndAuthor.updateAuthor(author);
         bookAndAuthorRepository.save(bookAndAuthor);
-        //bookAndAuthor를 저장하면 book, author에도 해당내용 반영됨
-        System.out.println(saved);
+        bookRepository.save(book);
 
-        em.flush();
-        em.clear();
 
-        Book finalBook = bookRepository.findById(saved.getId()).get();
-        System.out.println(finalBook);
-
-        bookRepository.deleteById(saved.getId());
-
-//        em.flush();
-//        em.clear();
-
-        //then
-        assertThat(bookRepository.findById(finalBook.getId()).isEmpty()).isTrue(); // 해당 book 삭제됨
-        assertThat(bookReviewInfoRepository.findById(finalBook.getBookReviewInfo().getId()).isPresent()).isEqualTo(false); // 연관 bookReviewInfo 삭제됨
-        assertThat(bookAndAuthorRepository.findById(finalBook.getBookAndAuthors().get(0).getId()).isPresent()).isEqualTo(true); // 연관 bookAndAuthor 삭제됨
-        assertThat(publisherRepository.findById(finalBook.getPublisher().getId()).isPresent()).isEqualTo(true); // 연관 publisher 삭제되지 않음
-        assertThat(publisherRepository.findById(finalBook.getPublisher().getId()).get().getBooks().size()).isNotEqualTo(0); // 연관 publisher에서 해당 book 제외되지 않음 !!!!!!!!!!!!!!
-        assertThat(reviewRepository.findById(finalBook.getReviews().get(0).getId()).isPresent()).isEqualTo(false); // 연관 review 삭제됨
-        assertThat(authorRepository.findById(finalBook.getBookAndAuthors().get(0).getAuthor().getId())).isNotNull(); // 연관 author 삭제되지 않음
-        assertThat(authorRepository.findById(finalBook.getBookAndAuthors().get(0).getAuthor().getId()).get().getBookAndAuthors().size()).isEqualTo(0); // 연관 author에서 해당 bookAndAuthor 제외됨
-
+        // then
+        assertThatCode(() -> bookRepository.getById(book.getId())).doesNotThrowAnyException();
     }
+
+
 }

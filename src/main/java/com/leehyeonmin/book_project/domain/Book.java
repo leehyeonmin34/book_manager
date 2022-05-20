@@ -51,6 +51,10 @@ public class Book extends BaseEntity{
     private List<Review> reviews = new ArrayList<>();
 
     public void updatePublisher(Publisher publisher){
+        if(publisher == null){
+            this.publisher = null;
+            return;
+        }
         if(this.publisher != null){
             this.publisher.getBooks().remove(this);
         }

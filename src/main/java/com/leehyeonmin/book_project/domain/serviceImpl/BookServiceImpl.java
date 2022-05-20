@@ -4,8 +4,6 @@ import com.leehyeonmin.book_project.domain.*;
 import com.leehyeonmin.book_project.domain.dto.*;
 import com.leehyeonmin.book_project.domain.exception.BusinessException.BusinessException;
 import com.leehyeonmin.book_project.domain.exception.BusinessException.EntityNotFoundException.EntityNotFoundException;
-import com.leehyeonmin.book_project.domain.exception.NoEntityException;
-import com.leehyeonmin.book_project.domain.request.AddBookRequest;
 import com.leehyeonmin.book_project.domain.response.BooksResponse;
 import com.leehyeonmin.book_project.domain.service.BookService;
 import com.leehyeonmin.book_project.domain.utils.RepoUtils;
@@ -16,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceContext;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -72,76 +69,52 @@ public class BookServiceImpl implements BookService {
         Author author = repoUtils.getOneElseThrowException(authorRepository, dto.getAuthorId());
         BookReviewInfo bookReviewInfo = BookReviewInfo.builder().build();
 
+        // 연관관계 필요 없는 정보 바로 셋
         Book book = Book.builder()
                 .name(dto.getName())
                 .category(dto.getCategory())
                 .bookReviewInfo(bookReviewInfo) //cascade로 인해 자동으로 repository 통해 save 될 것
-                .publisher(publisher) //cascade로 인해 자동으로 repository 통해 save 될 것
                 .build();
-        Book saved = bookRepository.save(book);
+        bookRepository.save(book);
 
-        BookAndAuthor bookAndAuthor = BookAndAuthor.builder()
-                .author(author)
-                .book(saved)
-                .build();
+        // 연관관계 필요한 정보 설정
+        // publisher
+        book.updatePublisher(publisher); // 해당 publisher에도 적용됨
+
+        // bookAndAuthor, author 업데이트
+        BookAndAuthor bookAndAuthor = BookAndAuthor.builder().build();
+        bookAndAuthor.updateBook(book); // 해당 book에도 적용됨
+        bookAndAuthor.updateAuthor(author); // 해당 author에도 적용됨
         bookAndAuthorRepository.save(bookAndAuthor);
 
+        // 추가된 정보까지 모두 DB에 반영
+        Book result = bookRepository.save(book);
 
-        em.flush(); // bookAndAuthor를 DB에 저장, book, author에도 연관관계 적용됨
-        em.clear(); // entity cache 제거
-        Book result = bookRepository.getById(saved.getId()); // author가 추가된 book을 다시 로드
-
+        // 리턴
         return toDto.from(result);
-
     }
-
-
 
     @Override
     public BookDto modifyBasicInfo(Long id, String name, String category) throws BusinessException{
+        //해당 아이디의 book을 로드 후 수정
         Book book = repoUtils.getOneElseThrowException(bookRepository, id);
         book.updateBasicInfo(name, category);
-        //해당 아이디의 book을 로드 후 수정
-
-        book.getBookAndAuthors()
-                .forEach(item -> {
-                    item.updateBook(book);
-                    bookAndAuthorRepository.save(item);
-                    // 연관된 bookAndAuthor들의 book 수정
-                });
-
-        em.flush(); // bookAndAuthor가 DB에 저장되고, book과 author가 각각 bookAndAuthor를 가짐
-        em.clear(); // 영속성 캐시 제거
-        Book result = bookRepository.getById(book.getId()); // 새 bookAndAuthor가 적용된 book 다시 로드
+        Book result = bookRepository.save(book); // 새 bookAndAuthor가 적용된 book 다시 로드
         return toDto.from(result);
     }
 
     @Override
     public void changeBookStatus(Long id, int statusCode) throws BusinessException{
+        // 해당 book 로드
         Book book = repoUtils.getOneElseThrowException(bookRepository, id);
+
+        // book에 status 업데이트
         book.updateStatus(statusCode);
+
+        //저장 후 리턴
         bookRepository.save(book);
     }
 
-
-//    @Override
-//    public BookDto changeAuthorOfBook(Long bookId, Long authorId) throws BusinessException{
-//        //book, author 로드
-//        Book book = repoUtils.getOneElseThrowException(bookRepository, bookId);
-//        Author author = repoUtils.getOneElseThrowException(authorRepository, authorId);
-//
-//        // book 내의 bookAndAuthor 수정요청 -> book과 author 모두 수정됨 (cascade)
-//        book.getBookAndAuthors()
-//                .forEach(item -> {
-//                    item.updateAuthor(author);
-//                    bookAndAuthorRepository.save(item);
-//                });
-////        EntityManager em = emf.createEntityManager();
-//        em.flush(); // DB 적용 완료
-//        em.clear(); // 영속성 캐시 제거
-//        Book result = bookRepository.getById(book.getId()); // 적용된 book 불러오기
-//        return toDto.from(result);
-//    }
 
     @Override
     public BookDto changePublisherOfBook(Long bookId, Long publisherId) throws BusinessException{
@@ -150,10 +123,10 @@ public class BookServiceImpl implements BookService {
         Publisher publisher = repoUtils.getOneElseThrowException(publisherRepository, publisherId);
 
         // book에 publisher 업데이트
-        book.updatePublisher(publisher);
-        em.flush(); // DB에 적용, book, publisher 모두에 적용됨
-        em.clear(); // 영속성 캐시 제거
-        Book result = bookRepository.getById(book.getId()); // 적용된 book 불러오기
+        book.updatePublisher(publisher); // 해당 publisher에도 적용됨
+
+        // 저장 후 리턴
+        Book result = bookRepository.save(book);
         return toDto.from(result);
     }
 

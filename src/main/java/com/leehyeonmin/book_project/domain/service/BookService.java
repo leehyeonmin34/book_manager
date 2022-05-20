@@ -16,7 +16,7 @@ public interface BookService {
 
     public BookDto getBook(Long id);
 
-    BookDto addBook(BookDto dto);
+    public BookDto addBook(BookDto dto);
 
     public BookDto modifyBasicInfo(Long id, String name, String category);
 

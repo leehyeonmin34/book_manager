@@ -62,15 +62,11 @@ public class AuthorServiceImpl implements AuthorService {
 
     @Override
     public void removeAuthor(Long id) throws BusinessException {
-        repoUtils.validateExist(authorRepository, id);
+        Author author = repoUtils.getOneElseThrowException(authorRepository, id);
 
-        // 연관 book (bookAndAuthor 삭제) - cascade에 remove 포함되어있지 않으므로 book, author엔 영향 없음
-        List<BookAndAuthor> bookAndAuthors = bookAndAuthorRepository.findByAuthorId(id);
-        List<Long> idList = bookAndAuthors.stream().map(item -> item.getId()).collect(Collectors.toList());
-        bookAndAuthorRepository.deleteAllById(idList);
-
-        // author 삭제 - 최종적으로 book은 삭제 안되고 author와 bookAndAuthor만 삭제됨
-        authorRepository.deleteById(id);
+        // when - 연관된 entity들을 지우거나 관계를 끊어낸 후 자신을 삭제한다.
+        bookAndAuthorRepository.deleteAll(author.getBookAndAuthors());
+        authorRepository.delete(author);
     }
 
     @Override
@@ -78,15 +74,8 @@ public class AuthorServiceImpl implements AuthorService {
 
         //author 수정
         Author author = repoUtils.getOneElseThrowException(authorRepository, id);
-        author.updateBasicInfo(name, country);
+        author.updateBasicInfo(name, country); // 연관 엔티티에서도 적용됨
         Author saved = authorRepository.save(author);
-
-        //연관 bookAndAuthor 수정 -> book, author에도 적용ㅆ
-        saved.getBookAndAuthors().forEach(item -> {
-            item.updateAuthor(saved);
-            bookAndAuthorRepository.save(item);
-        });
-
         return toDto.from(saved);
     }
 
@@ -100,13 +89,10 @@ public class AuthorServiceImpl implements AuthorService {
         Book book = repoUtils.getOneElseThrowException(bookRepository, bookId);
 
         //bookAndAuthor 생성 후 저장 -> book, author에 해당내용 반영됨
-        BookAndAuthor bookAndAuthor = BookAndAuthor.builder()
-                .author(author)
-                .book(book)
-                .build();
-
+        BookAndAuthor bookAndAuthor = BookAndAuthor.builder().build();
+        bookAndAuthor.updateAuthor(author);
+        bookAndAuthor.updateBook(book);
         bookAndAuthorRepository.save(bookAndAuthor);
-
 
     }
 

@@ -65,17 +65,22 @@ public class AuthorServiceImpl implements AuthorService {
         Author author = repoUtils.getOneElseThrowException(authorRepository, id);
 
         // when - 연관된 entity들을 지우거나 관계를 끊어낸 후 자신을 삭제한다.
-        bookAndAuthorRepository.deleteAll(author.getBookAndAuthors());
+        if(author.getBookAndAuthors().size() != 0)
+            bookAndAuthorRepository.deleteAll(author.getBookAndAuthors());
         authorRepository.delete(author);
     }
 
     @Override
     public AuthorDto modifyBasicInfo(Long id, String name, String country) throws BusinessException{
 
-        //author 수정
+        //author 로드
         Author author = repoUtils.getOneElseThrowException(authorRepository, id);
+
+        // author 수정 및 DB 적용
         author.updateBasicInfo(name, country); // 연관 엔티티에서도 적용됨
         Author saved = authorRepository.save(author);
+
+        // 리턴
         return toDto.from(saved);
     }
 

@@ -38,4 +38,8 @@ public class Publisher extends BaseEntity {
                 book.updatePublisher(this);
         }
     }
+
+    public void updateBasicInfo(String name){
+        this.name = name;
+    }
 }

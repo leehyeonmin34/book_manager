@@ -7,6 +7,8 @@ import com.leehyeonmin.book_project.repository.BookAndAuthorRepository;
 import com.leehyeonmin.book_project.repository.BookRepository;
 import com.leehyeonmin.book_project.repository.PublisherRepository;
 import lombok.Data;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,10 +31,11 @@ public class PublisherRepositoryTest {
     @Autowired
     PublisherRepository publisherRepository;
 
-    @Test
-    @DisplayName("addBook")
-    public void updatePublisherTest(){
-        // given
+    private Long publisherId;
+    private Long bookId;
+
+    @BeforeEach
+    private void beforeEach(){
         Book book = Book.builder()
                 .name("이름")
                 .build();
@@ -41,14 +44,32 @@ public class PublisherRepositoryTest {
                 .build();
         Book savedBook = bookRepository.save(book);
         Publisher savedPublisher = publisherRepository.save(publisher);
+        savedBook.updatePublisher(publisher);
+
+        bookId = savedBook.getId();
+        publisherId = savedPublisher.getId();
+    }
+
+    @AfterEach
+    private void afterEach(){
+        bookRepository.deleteAll();
+        authorRepository.deleteAll();
+    }
+
+    @Test
+    @DisplayName("addBook")
+    public void addPublisherTest(){
+        // given
+        Book book = bookRepository.getById(bookId);
+        Publisher publisher = publisherRepository.getById(bookId);
+        Book newBook = bookRepository.save(Book.builder().name("새 책").build());
 
         // when
-        savedPublisher.addBooks(savedBook);
+        publisher.addBooks(newBook); // 편의메서드로 새 책 추가
 
-        // then
-        Book bookOnDB = bookRepository.getById(savedBook.getId());
-        Publisher publisherOnDB = publisherRepository.getById(savedPublisher.getId());
-        assertThat(bookOnDB.getPublisher()).isNotNull();
+        // then - 연관 book에도 해당내용 적용됨
+        Book bookOnDB = bookRepository.getById(newBook.getId());
+        Publisher publisherOnDB = publisherRepository.getById(publisherId);
         assertThat(bookOnDB.getPublisher().getName()).isEqualTo(publisher.getName());
         assertThat(publisherOnDB.getBooks().contains(bookOnDB));
     }
@@ -57,25 +78,37 @@ public class PublisherRepositoryTest {
     @DisplayName("removeBook")
     public void removePublisherTest(){
         // given
-        Book book = Book.builder()
-                .name("이름")
-                .build();
-        Publisher publisher = Publisher.builder()
-                .name("이름")
-                .build();
-        Book savedBook = bookRepository.save(book);
-        Publisher savedPublisher = publisherRepository.save(publisher);
-        savedPublisher.addBooks(savedBook);
+        Book book = bookRepository.getById(bookId);
+        Publisher publisher = publisherRepository.getById(publisherId);
+        publisher.addBooks(book);
 
         // when
-        savedBook.updatePublisher(null);
-        publisherRepository.delete(savedPublisher);
+        book.updatePublisher(null);
+        publisherRepository.delete(publisher);
 
         // then
-        Book bookOnDB = bookRepository.getById(savedBook.getId());
+        Book bookOnDB = bookRepository.getById(bookId);
         assertThat(bookOnDB).isNotNull();
         assertThat(bookOnDB.getPublisher()).isNull();
         assertThat(publisherRepository.findAll().size()).isEqualTo(0);
+    }
+
+    @Test
+    @DisplayName("updateBasicInfo 성공")
+    public void updateBasicInfoSuccess(){
+        // given
+        Book book = bookRepository.getById(bookId);
+        Publisher publisher = publisherRepository.getById(publisherId);
+        String changedName = "다른 이름";
+
+        // when
+        publisher.updateBasicInfo(changedName);
+
+        // then
+        Publisher publisherDB = publisherRepository.getById(publisherId);
+        Book bookDB = bookRepository.getById(bookId);
+        assertThat(publisherDB.getName()).isEqualTo(changedName);
+        assertThat(bookDB.getPublisher().getName()).isEqualTo(changedName);
     }
 
 

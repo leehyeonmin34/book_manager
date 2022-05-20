@@ -11,7 +11,7 @@ public interface PublisherService {
 
     public PublisherDto addPublisher(PublisherDto dto);
 
-    public PublisherDto modifyPublisher(PublisherDto dto);
+    public void updateBasicInfo(Long id, String name);
 
-    public Boolean removePublisher(Long id);
+    public void removePublisher(Long id);
 }

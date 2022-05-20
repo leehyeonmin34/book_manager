@@ -67,17 +67,10 @@ public class BookAndAuthorRepositoryTest {
         Book bookSaved = bookRepository.save(book);
         Author authorSaved = authorRepository.save(author);
 
-        BookAndAuthor bookAndAuthor = BookAndAuthor.builder()
-                .author(authorSaved)
-                .book(bookSaved)
-                .build();
+        BookAndAuthor bookAndAuthor = BookAndAuthor.builder().build();
+        bookAndAuthor.updateAuthor(authorSaved);
+        bookAndAuthor.updateBook(bookSaved);
         BookAndAuthor saved = bookAndAuthorRepository.save(bookAndAuthor);
-        em.flush();
-        em.clear();
-//        book.addBookAndAuthor(saved);
-//        author.addBookAndAuthor(saved);
-//        bookRepository.save(book);
-//        authorRepository.save(author);
     }
 
     @Test
@@ -135,15 +128,18 @@ public class BookAndAuthorRepositoryTest {
     public void deleteSuccess(){
 
         //when - 책의 bookAndAuthor를 삭제
-        Book existingBook = bookRepository.findAll().get(0);
-        existingBook.getBookAndAuthors().stream().forEach(item -> {
-            bookAndAuthorRepository.deleteById(item.getId());
-            System.out.println(">>>>>>>>>>>>>>>>>>>>>> deleted" + item.getId());
-        });
+        Book book = bookRepository.findAll().get(0);
+        BookAndAuthor bookAndAuthor = book.getBookAndAuthors().get(0);
+        bookAndAuthorRepository.delete(bookAndAuthor);
+
+        em.flush();
+        em.clear();
 
         // then - book-author 사이의 연관관계(bookAndAuthor)만 사라지고 book, author는 계속 존재함
-        assertThat(bookRepository.findAll().size()).isNotEqualTo(0);
         assertThat(bookAndAuthorRepository.findAll().size()).isEqualTo(0);
+        assertThat(bookRepository.findAll().get(0).getBookAndAuthors().size()).isEqualTo(0);
+        assertThat(authorRepository.findAll().get(0).getBookAndAuthors().size()).isEqualTo(0);
+        assertThat(bookRepository.findAll().size()).isNotEqualTo(0);
         assertThat(authorRepository.findAll().size()).isNotEqualTo(0);
     }
 

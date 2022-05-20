@@ -4,6 +4,7 @@ import com.leehyeonmin.book_project.domain.Author;
 import com.leehyeonmin.book_project.domain.Book;
 import com.leehyeonmin.book_project.domain.BookAndAuthor;
 import com.leehyeonmin.book_project.domain.Publisher;
+import com.leehyeonmin.book_project.domain.exception.BusinessException.EntityNotFoundException.EntityNotFoundException;
 import com.leehyeonmin.book_project.repository.AuthorRepository;
 import com.leehyeonmin.book_project.repository.BookAndAuthorRepository;
 import com.leehyeonmin.book_project.repository.BookRepository;
@@ -140,6 +141,7 @@ public class AuthorRepositoryTest {
         assertThat(bookDB.getBookAndAuthors().size()).isEqualTo(2);
         assertThat(authorDB.getBookAndAuthors().size()).isEqualTo(2);
     }
+
 
 
 }

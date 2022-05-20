@@ -87,18 +87,20 @@ public class AuthorServiceTest {
     @DisplayName("author 제거 테스트 (성공)")
     public void removeTestSuccess(){
         // GIVEN
-        Author givenAuthorWithId = givenAuthorWithId();
-        AuthorDto givenDtoWithId = givenDtoWithId();
-        List<BookAndAuthor> givenBookAndAuthorList = givenBookAndAuthorListWithId();
+        Author givenAuthorWithId = Author.builder()
+                .bookAndAuthors(givenBookAndAuthorListWithId())
+                .name("이름")
+                .build();
 
-        lenient().when(bookAndAuthorRepository.findByAuthorId(any(Long.class))).thenReturn(givenBookAndAuthorList);
+        lenient().when(repoUtils.getOneElseThrowException(any(AuthorRepository.class), any(Long.class))).thenReturn(givenAuthorWithId);
 
-        //when
-        authorService.removeAuthor(givenDtoWithId.getId());
+        // when
+        authorService.removeAuthor(999L);
 
-        //then
-        verify(bookAndAuthorRepository, times(1)).deleteAllById(any(List.class));
-        verify(authorRepository, times(1)).deleteById(any(Long.class));
+        // then
+        assertThat(givenAuthorWithId.getBookAndAuthors().size()).isEqualTo(5);
+        verify(bookAndAuthorRepository, times(1)).deleteAll(any(List.class));
+        assertThatCode(() -> authorService.removeAuthor(999L)).doesNotThrowAnyException();
     }
 
     @Test
@@ -106,14 +108,15 @@ public class AuthorServiceTest {
     public void removeTestFail(){
 
         // GIVEN
-        lenient().when(bookAndAuthorRepository.findByAuthorId(any(Long.class))).thenReturn(Collections.emptyList());
+        Author givenAuthorWithId = givenAuthorWithId();
+        lenient().when(repoUtils.getOneElseThrowException(any(AuthorRepository.class), any(Long.class))).thenReturn(givenAuthorWithId);
 
         //when
         authorService.removeAuthor(999L);
 
         //then
-        verify(bookAndAuthorRepository, times(1)).deleteAllById(any(List.class));
-        verify(authorRepository, times(1)).deleteById(any(Long.class));
+        verify(bookAndAuthorRepository, times(0)).deleteAll(any(List.class));
+        verify(authorRepository, times(1)).delete(any(Author.class));
         assertThatCode( () -> authorService.removeAuthor(999L)).doesNotThrowAnyException();
     }
 
@@ -123,29 +126,13 @@ public class AuthorServiceTest {
     public void modifyTest(){
         // GIVEN
         Author givenAuthorWithId = givenAuthorWithId();
-        List<BookAndAuthor> givenBookAndAuthorList = givenBookAndAuthorListWithId();
+        lenient().when(repoUtils.getOneElseThrowException(any(AuthorRepository.class), any(Long.class))).thenReturn(givenAuthorWithId);
+        lenient().when(authorRepository.save(any(Author.class))).thenReturn(givenAuthorWithId);
+        lenient().when(toDto.from(any(Author.class))).thenReturn(givenDtoWithId());
 
-        AuthorDto modifiedAuthorDto = givenDtoWithId();
-        modifiedAuthorDto.setCountry("다른 나라");
-        Author modifiedAuthor = Author.builder()
-                        .bookAndAuthors(givenBookAndAuthorListWithId())
-                                .id(999L)
-                                        .name("작가 이름")
-                                                .country("나라")
-                                                        .build();
-        modifiedAuthor.updateBasicInfo(modifiedAuthorDto.getName(), modifiedAuthorDto.getCountry());
-
-        lenient().when(repoUtils.getOneElseThrowException(any(AuthorRepository.class), any(Long.class)))
-                .thenReturn(givenAuthorWithId);
-        lenient().when(authorRepository.save(any(Author.class))).thenReturn(modifiedAuthor);
-        lenient().when(bookAndAuthorRepository.save(any(BookAndAuthor.class))).thenReturn(givenBookAndAuthorWithId());
-        lenient().when(toDto.from(any(Author.class))).thenReturn(modifiedAuthorDto);
-
-        //when
-        AuthorDto result = authorService.modifyBasicInfo(modifiedAuthorDto.getId(), "다른 이름", "다른 나라");
-
-        //then
-        verify(bookAndAuthorRepository, times(givenBookAndAuthorList.size())).save(any(BookAndAuthor.class));
+        //when - then
+        assertThatCode( () -> authorService.modifyBasicInfo(999L, "다른 이름", "다른 나라"))
+                .doesNotThrowAnyException();
     }
 
     @Test

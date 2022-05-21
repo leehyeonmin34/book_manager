@@ -192,7 +192,7 @@ public class BookServiceTest {
                 .category("카테고리")
                 .authorId(999L)
                 .publisherId(999L)
-                .status(new BookStatus(BookStatus.AVALABLE))
+                .status(BookStatus.AVALABLE)
                 .build();
         return bookDto;
     }

@@ -111,7 +111,7 @@ public class ToEntity{
                 .id(dto.getId())
                 .name(dto.getName())
                 .category(dto.getCategory())
-                .status(dto.getStatus())
+                .status(new BookStatus(dto.getStatus()))
                 .bookAndAuthors(bookAndAuthors)
                 .publisher(publisher)
                 .bookReviewInfo(bookReviewInfo)

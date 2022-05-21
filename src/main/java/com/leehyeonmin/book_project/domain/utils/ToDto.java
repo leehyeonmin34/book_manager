@@ -44,7 +44,7 @@ public class ToDto {
         dto.setCategory(entity.getCategory());
         dto.setBookReviewInfoId(entity.getBookReviewInfo().getId());
         dto.setName(entity.getName());
-        dto.setStatus(entity.getStatus());
+        dto.setStatus(entity.getStatus().getCode());
         dto.setPublisherId(entity.getPublisher().getId());
         dto.setId(entity.getId());
 

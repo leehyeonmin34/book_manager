@@ -16,7 +16,7 @@ public class BookDto extends BaseDto{
     private String category;
 
     @Builder.Default
-    private BookStatus status = new BookStatus(BookStatus.AVALABLE);
+    private int status = BookStatus.AVALABLE;
 
     private Long publisherId;
 

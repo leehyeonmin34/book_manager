@@ -14,9 +14,6 @@ import java.time.LocalDateTime;
 @SuperBuilder
 @NoArgsConstructor
 public class BaseDto {
-    protected LocalDateTime createdAt;
-    protected LocalDateTime updatedAt;
-
     @NotBlank(groups = { ValidationGroups.idNotNull.class })
     protected Long id;
 }

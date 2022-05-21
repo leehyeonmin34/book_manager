@@ -64,20 +64,20 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public BooksResponse getBooksByCategoryId(Long categoryId, int start, int end){
+    public BooksResponse getBooksByCategoryId(Long categoryCode, int start, int end){
         return null;
     }
 
     @Override
-    public BookDto addBook(BookDto dto) throws BusinessException { // author, publisher의 유무에 따라
+    public BookDto addBook(addBookRequest request) throws BusinessException { // author, publisher의 유무에 따라
         Publisher publisher = repoUtils.getOneElseThrowException(publisherRepository, dto.getPublisherId());
-        Author author = repoUtils.getOneElseThrowException(authorRepository, dto.getAuthorId());
+        List<Author> authorList = authorRepository.findAllById(
+                dto.getAuthors().stream().map(item -> item.getId()).collect(Collectors.toList()));
         BookReviewInfo bookReviewInfo = BookReviewInfo.builder().build();
 
         // 연관관계 필요 없는 정보 바로 셋
         Book book = Book.builder()
                 .name(dto.getName())
-                .category(dto.getCategory())
                 .bookReviewInfo(bookReviewInfo) //cascade로 인해 자동으로 repository 통해 save 될 것
                 .build();
         bookRepository.save(book);
@@ -85,12 +85,17 @@ public class BookServiceImpl implements BookService {
         // 연관관계 필요한 정보 설정
         // publisher
         book.updatePublisher(publisher); // 해당 publisher에도 적용됨
+        book.updateBasicInfo(book.getName(), dto.getCategory().getCode());
 
         // bookAndAuthor, author 업데이트
-        BookAndAuthor bookAndAuthor = BookAndAuthor.builder().build();
-        bookAndAuthor.updateBook(book); // 해당 book에도 적용됨
-        bookAndAuthor.updateAuthor(author); // 해당 author에도 적용됨
-        bookAndAuthorRepository.save(bookAndAuthor);
+        List<BookAndAuthor> bookAndAuthors = authorList.stream().map(author -> {
+            BookAndAuthor bookAndAuthor = BookAndAuthor.builder().build();
+            bookAndAuthor.updateBook(book); // 해당 book에도 적용됨
+            bookAndAuthor.updateAuthor(author); // 해당 author에도 적용됨
+            return bookAndAuthor;
+        }).collect(Collectors.toList());
+
+        bookAndAuthorRepository.saveAll(bookAndAuthors);
 
         // 추가된 정보까지 모두 DB에 반영
         Book result = bookRepository.save(book);

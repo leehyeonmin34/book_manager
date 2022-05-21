@@ -8,6 +8,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 @Builder
@@ -16,8 +18,8 @@ public class AddBookRequest {
 
     private BookDto bookDto;
 
-    private AuthorDto authorDto;
+    private List<Long> authorIdList;
 
-    private PublisherDto publisherDto;
+    private Long publisherId;
 
 }

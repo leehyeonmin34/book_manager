@@ -137,7 +137,7 @@ public class BookRestControllerTest {
                 .name("책 이름")
                 .category("카테고리")
                 .publisherId(1L)
-                .authorId(1L)
+                .authorIdList(List.of(1L))
                 .build();
     }
 
@@ -147,7 +147,7 @@ public class BookRestControllerTest {
                 .name("책 이름")
                 .category("카테고리")
                 .publisherId(1L)
-                .authorId(1L)
+                .authorIdList(List.of(1L))
                 .bookReviewInfoId(1L)
                 .id(1L)
                 .build();

@@ -31,7 +31,7 @@ public class User extends BaseEntity{
     private String email;
 
     @Enumerated(value = EnumType.STRING)
-    private Gender gender;
+    private GenderDto gender;
 
     @Embedded
     @AttributeOverrides({

@@ -1,6 +1,6 @@
 package com.leehyeonmin.book_project.domain;
 
-public enum Gender {
+public enum GenderDto {
     MALE,
     FEMALE
 }

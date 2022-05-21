@@ -64,6 +64,11 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
+    public BooksResponse getBooksByCategoryId(Long categoryId, int start, int end){
+        return null;
+    }
+
+    @Override
     public BookDto addBook(BookDto dto) throws BusinessException { // author, publisher의 유무에 따라
         Publisher publisher = repoUtils.getOneElseThrowException(publisherRepository, dto.getPublisherId());
         Author author = repoUtils.getOneElseThrowException(authorRepository, dto.getAuthorId());

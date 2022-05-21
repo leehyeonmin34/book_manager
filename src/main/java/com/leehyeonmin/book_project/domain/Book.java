@@ -28,7 +28,7 @@ public class Book extends BaseEntity{
 
     private String name;
 
-    private String category;
+    private Category category;
 
     @OneToMany(mappedBy = "book", fetch = FetchType.LAZY)
     @Builder.Default
@@ -62,9 +62,9 @@ public class Book extends BaseEntity{
         publisher.addBooks(this);
     }
 
-    public void updateBasicInfo(String name, String category){
+    public void updateBasicInfo(String name, int categoryCode){
         this.name = name;
-        this.category = category;
+        this.category = new Category(categoryCode);
     }
 
     public void updateStatus(int code){

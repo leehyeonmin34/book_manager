@@ -24,6 +24,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.lenient;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -59,7 +60,29 @@ public class BookRestControllerTest {
 
         // then
         MvcResult result = resultActions.andExpect(status().is4xxClientError()).andReturn();
-        System.out.println(">>>>>>>>>>>>>>>>>>>>>>>" + result.get);
+    }
+
+    @Test
+    @DisplayName("getBooksForMainPage")
+    public void getBooksForMainPage() throws Exception{
+        // given
+        int pageNum = 2;
+        Long categoryId = 1L;
+        lenient().when(bookService.getBooksByCategoryId(any(Long.class), anyInt(), anyInt()))
+            .thenReturn(BooksResponse.builder().books(bookDtoList()).total(bookDtoList().size()).build());
+
+
+        // when
+        ResultActions ra = mockMvc.perform(MockMvcRequestBuilders.get("/api/books/main")
+                .contentType(MediaType.APPLICATION_JSON)
+                .param("category_id", String.valueOf(categoryId))
+                .param("page_num", String.valueOf(pageNum))
+        );
+
+        // then
+        ra.andExpect(status().isOk())
+                .andExpect(jsonPath("$.books.length()").value(5))
+                .andExpect(jsonPath("$.total").value(5));
     }
 
     @Test

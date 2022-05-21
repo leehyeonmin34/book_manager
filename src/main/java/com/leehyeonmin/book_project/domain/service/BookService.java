@@ -16,6 +16,8 @@ public interface BookService {
 
     public BookDto getBook(Long id);
 
+    public BooksResponse getBooksByCategoryId(Long categoryId, int start, int end);
+
     public BookDto addBook(BookDto dto);
 
     public BookDto modifyBasicInfo(Long id, String name, String category);

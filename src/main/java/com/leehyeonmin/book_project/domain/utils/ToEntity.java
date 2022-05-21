@@ -3,7 +3,6 @@ package com.leehyeonmin.book_project.domain.utils;
 import com.leehyeonmin.book_project.domain.*;
 import com.leehyeonmin.book_project.domain.dto.*;
 import com.leehyeonmin.book_project.repository.*;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 
@@ -90,7 +89,7 @@ public class ToEntity{
         User entity = User.builder()
                 .id(dto.getId())
                 .email(dto.getEmail())
-                .gender(Gender.valueOf(dto.getGender()))
+                .gender(GenderDto.valueOf(dto.getGender()))
                 .name(dto.getName())
                 .companyAddress(modelMapper.map(dto.getCompanyAddress(), Address.class))
                 .homeAddress(modelMapper.map(dto.getHomeAddress(), Address.class))

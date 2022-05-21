@@ -2,7 +2,11 @@ package com.leehyeonmin.book_project.domain;
 
 import lombok.*;
 
+import javax.persistence.Entity;
+
 @Getter
+@Entity
+
 public class BookStatus {
     private int code;
     private String description;

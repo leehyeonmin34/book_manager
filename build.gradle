@@ -34,6 +34,7 @@ dependencies {
 	implementation 'io.springfox:springfox-boot-starter:3.0.0'
 	implementation 'io.springfox:springfox-swagger-ui:3.0.0'
 	implementation 'com.google.code.gson:gson:2.8.7'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
 
 //	testImplementation "org.assertj:assertj-core:3.20.2" //spring-boot-starter-test에 포함됨
 //	testImplementation group: 'org.hamcrest', name: 'hamcrest-junit', version: '2.0.0.0' //spring-boot-starter-test에 포함됨

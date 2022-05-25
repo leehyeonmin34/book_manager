@@ -1,7 +1,9 @@
 package com.leehyeonmin.book_project.domain.controller;
 
 import com.google.gson.Gson;
-import com.leehyeonmin.book_project.domain.BookStatus;
+import com.leehyeonmin.book_project.domain.Enum.BookStatus;
+import com.leehyeonmin.book_project.domain.Enum.Category;
+import com.leehyeonmin.book_project.domain.dto.AuthorDto;
 import com.leehyeonmin.book_project.domain.dto.BookDto;
 import com.leehyeonmin.book_project.domain.response.BooksResponse;
 import com.leehyeonmin.book_project.domain.service.BookService;
@@ -21,6 +23,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -66,23 +69,26 @@ public class BookRestControllerTest {
     @DisplayName("getBooksForMainPage")
     public void getBooksForMainPage() throws Exception{
         // given
-        int pageNum = 2;
-        Long categoryId = 1L;
-        lenient().when(bookService.getBooksByCategoryId(any(Long.class), anyInt(), anyInt()))
-            .thenReturn(BooksResponse.builder().books(bookDtoList()).total(bookDtoList().size()).build());
+        String start = "0";
+        String categoryCode = Category.ART.getCode();
+        List<BookDto.GetResponse> books = bookDtoList3().stream()
+                .map( book -> new BookDto.GetResponse(book))
+                .collect(Collectors.toList());
+        lenient().when(bookService.getBooksByCategory(any(String.class), anyInt(), anyInt()))
+            .thenReturn(BookDto.GetListResponse.builder().books(books).total(bookDtoList3().size()).build());
 
 
         // when
         ResultActions ra = mockMvc.perform(MockMvcRequestBuilders.get("/api/books/main")
                 .contentType(MediaType.APPLICATION_JSON)
-                .param("category_id", String.valueOf(categoryId))
-                .param("page_num", String.valueOf(pageNum))
+                .param("category_code", String.valueOf(categoryCode))
+                .param("start", String.valueOf(5))
         );
 
         // then
         ra.andExpect(status().isOk())
-                .andExpect(jsonPath("$.books.length()").value(5))
-                .andExpect(jsonPath("$.total").value(5));
+                .andExpect(jsonPath("$.books.length()").value(3))
+                .andExpect(jsonPath("$.total").value(3));
     }
 
     @Test
@@ -103,7 +109,7 @@ public class BookRestControllerTest {
         // then
         resultActions.andExpect(status().isCreated())
                 .andExpect(jsonPath("name", response.getName()).exists())
-                .andExpect(jsonPath("category", response.getCategory()).exists())
+                .andExpect(jsonPath("category", response.getCategoryCode()).exists())
                 .andExpect(jsonPath("id", response.getId()).exists());
     }
 
@@ -133,21 +139,22 @@ public class BookRestControllerTest {
 
     private BookDto bookDtoIn(){
         return BookDto.builder()
-                .status(BookStatus.AVALABLE)
+                .statusCode(BookStatus.AVAILABLE.getCode())
                 .name("책 이름")
-                .category("카테고리")
+                .categoryName("철학")
                 .publisherId(1L)
-                .authorIdList(List.of(1L))
+                .authors(List.of(AuthorDto.builder().id(1L).build()))
                 .build();
     }
 
     private BookDto bookDtoOut(){
         return BookDto.builder()
-                .status(BookStatus.AVALABLE)
+                .statusCode(BookStatus.AVAILABLE.getCode())
                 .name("책 이름")
-                .category("카테고리")
+                .categoryName("철학")
+                .categoryCode("100")
                 .publisherId(1L)
-                .authorIdList(List.of(1L))
+                .authors(authorDtoList())
                 .bookReviewInfoId(1L)
                 .id(1L)
                 .build();
@@ -157,6 +164,22 @@ public class BookRestControllerTest {
         List<BookDto> lst = new ArrayList<>();
         for(int i = 0; i < 5; i++ ){
             lst.add(BookDto.builder().id(Long.valueOf(i)).build());
+        }
+        return lst;
+    }
+
+    private List<BookDto> bookDtoList3(){
+        List<BookDto> lst = new ArrayList<>();
+        for(int i = 0; i < 3; i++ ){
+            lst.add(BookDto.builder().id(Long.valueOf(i)).build());
+        }
+        return lst;
+    }
+
+    private List<AuthorDto> authorDtoList(){
+        List<AuthorDto> lst = new ArrayList<>();
+        for(int i = 0; i < 5; i++){
+            lst.add(AuthorDto.builder().id(Long.valueOf(i)).build());
         }
         return lst;
     }

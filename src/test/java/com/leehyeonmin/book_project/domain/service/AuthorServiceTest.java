@@ -4,6 +4,7 @@ package com.leehyeonmin.book_project.domain.service;
 import com.leehyeonmin.book_project.domain.Author;
 import com.leehyeonmin.book_project.domain.Book;
 import com.leehyeonmin.book_project.domain.BookAndAuthor;
+import com.leehyeonmin.book_project.domain.Enum.Category;
 import com.leehyeonmin.book_project.domain.dto.AuthorDto;
 import com.leehyeonmin.book_project.domain.exception.BusinessException.DuplicateEntityException.DuplicateEntityException;
 import com.leehyeonmin.book_project.domain.exception.BusinessException.EntityNotFoundException.EntityNotFoundException;
@@ -255,7 +256,7 @@ public class AuthorServiceTest {
 
     public Book givenBookWithoutId(){
         Book book = Book.builder()
-                .category("카테고리")
+                .category(Category.ART)
                 .name("이름")
                 .build();
         return book;
@@ -263,7 +264,7 @@ public class AuthorServiceTest {
 
     public Book givenBookWithId(){
         Book book = Book.builder()
-                .category("카테고리")
+                .category(Category.ART)
                 .name("이름")
                 .id(999L)
                 .build();

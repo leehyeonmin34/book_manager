@@ -1,5 +1,6 @@
 package com.leehyeonmin.book_project.domain.dto;
 
+import com.leehyeonmin.book_project.domain.Author;
 import com.leehyeonmin.book_project.domain.BookAndAuthor;
 import com.leehyeonmin.book_project.domain.validations.ValidationGroups;
 import lombok.*;
@@ -26,5 +27,11 @@ public class AuthorDto extends BaseDto{
     @NotBlank(message = "authorDto.country는 빈 값일 수 없습니다.",
             groups = { ValidationGroups.normal.class })
     private String country;
+
+    public AuthorDto(Author author){
+        id = author.getId();
+        name = author.getName();
+        country = author.getCountry();
+    }
 
 }

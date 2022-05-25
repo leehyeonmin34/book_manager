@@ -41,10 +41,12 @@ public class ToDto {
             return null;
         }
         BookDto dto = new BookDto();
-        dto.setCategory(entity.getCategory());
+        dto.setCategoryCode(entity.getCategory().getCode());
+        dto.setCategoryName(entity.getCategory().getDesc());
         dto.setBookReviewInfoId(entity.getBookReviewInfo().getId());
         dto.setName(entity.getName());
-        dto.setStatus(entity.getStatus().getCode());
+        dto.setStatusCode(entity.getStatus().getCode());
+        dto.setStatusDesc(entity.getStatus().getDescription());
         dto.setPublisherId(entity.getPublisher().getId());
         dto.setId(entity.getId());
 

@@ -1,6 +1,7 @@
 package com.leehyeonmin.book_project.domain.repository;
 
 import com.leehyeonmin.book_project.domain.*;
+import com.leehyeonmin.book_project.domain.Enum.Category;
 import com.leehyeonmin.book_project.domain.dto.BookDto;
 import com.leehyeonmin.book_project.domain.utils.RepoUtils;
 import com.leehyeonmin.book_project.domain.utils.ToDto;
@@ -23,6 +24,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Transient;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -47,11 +50,9 @@ public class BookRepositoryTest {
     @Autowired
     EntityManager em;
 
-//    @Autowired
-//    ToEntity toEntity;
 
-//    @Autowired
-//    ToDto toDto;
+    @Autowired
+    ToDto toDto;
 
     @BeforeEach
     public void beforeEach(){
@@ -160,7 +161,7 @@ public class BookRepositoryTest {
         String changedName = "다른 이름";
 
         // when
-        book.updateBasicInfo(changedName, "다른 카테고리"); // 정보 수정
+        book.updateBasicInfo(changedName, Category.ART); // 정보 수정
 
         // then
         Book bookOnDB = bookRepository.getById(bookId);
@@ -184,7 +185,7 @@ public class BookRepositoryTest {
 
         // when
         book.updatePublisher(publisher);
-        book.updateBasicInfo("다른 이름", "다른 카테고리"); // 정보 수정
+        book.updateBasicInfo("다른 이름", Category.ART); // 정보 수정
         em.persist(book);
 
         // then
@@ -202,7 +203,7 @@ public class BookRepositoryTest {
         Book book = Book.builder().name("새 책").build();
 
         // when
-        book.updateBasicInfo("다른 이름", "다른 카테고리"); // 정보 수정
+        book.updateBasicInfo("다른 이름", Category.ART); // 정보 수정
         em.persist(book);
 
         // then
@@ -278,9 +279,10 @@ public class BookRepositoryTest {
         Publisher publisher = publisherRepository.getById(publisherId);
         BookDto dto = BookDto.builder()
                 .name("책 이름")
-                .category("카테고리")
+                .categoryCode(Category.ART.getCode())
+                .categoryName(Category.ART.getDesc())
                 .publisherId(publisherId)
-                .authorId(author1Id)
+                .authors(List.of(toDto.from(author)))
                 .build();
 
         // when
@@ -290,7 +292,7 @@ public class BookRepositoryTest {
         // 연관관계 필요 없는 정보 바로 셋
         Book book = Book.builder()
                 .name(dto.getName())
-                .category(dto.getCategory())
+                .category(Category.ofCode(dto.getCategoryCode()))
                 .bookReviewInfo(bookReviewInfo) //cascade로 인해 자동으로 repository 통해 save 될 것
                 .build();
         bookRepository.save(book);

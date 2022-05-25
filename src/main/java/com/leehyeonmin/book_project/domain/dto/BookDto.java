@@ -1,15 +1,16 @@
 package com.leehyeonmin.book_project.domain.dto;
 
-import com.leehyeonmin.book_project.domain.BookStatus;
+import com.leehyeonmin.book_project.domain.Book;
+import com.leehyeonmin.book_project.domain.Enum.BookStatus;
 import com.leehyeonmin.book_project.domain.validations.ValidationGroups;
-import jdk.jfr.Category;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import net.bytebuddy.implementation.bind.annotation.Super;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 @Setter
@@ -18,31 +19,63 @@ import java.util.List;
 @NoArgsConstructor
 public class BookDto extends BaseDto{
 
-    @Data
-    static public class Info {
-        private String name;
 
-        private String category;
+    private String name;
 
-        private Long publisherId;
+    private String categoryCode;
 
-        private List<Long> authorIdList;
+    private String categoryName;
 
-        private Long bookReviewInfoId;
+    private Long publisherId;
 
-        private int status = BookStatus.AVALABLE;
+    private String publisherName;
+
+    @Builder.Default
+    private String statusCode = BookStatus.AVAILABLE.getCode();
+
+    @Builder.Default
+    private String statusDesc = BookStatus.AVAILABLE.getDescription();
+
+    private List<AuthorDto> authors;
+
+    private float averageScore;
+
+    private Long bookReviewInfoId;
+
+    private int reviewCount;
+
+    public BookDto(Book book){
+        id = book.getId();
+        name = book.getName();
+        categoryName = book.getCategory().getDesc();
+        categoryCode =book.getCategory().getCode();
+
+        statusCode = book.getStatus().getCode();
+        statusDesc = book.getStatus().getDescription();
+
+        publisherName = book.getPublisher().getName();
+        publisherId = book.getPublisher().getId();
+
+        averageScore = book.getBookReviewInfo().getAverageReviewScore();
+        reviewCount = book.getBookReviewInfo().getReviewCount();
+        bookReviewInfoId = book.getBookReviewInfo().getId();
+
+        authors = book.getBookAndAuthors().stream().map(item -> new AuthorDto(item.getAuthor())).collect(Collectors.toList());
     }
 
-    @Data
-    static public class addRequest{
+
+    @Getter
+    @Builder
+    static public class AddRequest{
+
         @NotBlank(message = "책 이름은 빈 값일 수 없습니다.",
                 groups = {ValidationGroups.normal.class})
         private String name;
 
-        private String category;
+        private String categoryCode;
 
         @Builder.Default
-        private int status = BookStatus.AVALABLE;
+        private String statusCode = BookStatus.AVAILABLE.getCode();
 
         @NotBlank(message = "출판사 아이디는 빈 값일 수 없습니다.",
                 groups = {ValidationGroups.normal.class})
@@ -52,29 +85,88 @@ public class BookDto extends BaseDto{
                 groups = {ValidationGroups.normal.class})
         private List<Long> authorIdList;
 
-        private Long bookReviewInfoId;
+        public BookDto toServiceDto(){
+            return BookDto.builder()
+                    .name(name)
+                    .categoryCode(categoryCode)
+                    .statusCode(statusCode)
+                    .publisherId(publisherId)
+                    .authors(authorIdList.stream().map(
+                            id -> AuthorDto.builder().id(id).build()
+                    ).collect(Collectors.toList()))
+                    .build();
+        }
+
     }
 
-    static public class getResponse{
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    static public class GetResponse{
+
+        private Long id;
 
         private String name;
 
-        private int categoryCode;
+        private String categoryName;
 
-        private String category;
+        private String categoryCode;
 
-        private PublisherDto publisher;
+        private String publisherName;
 
-        private List<AuthorDto> authors;
+        private Long publisherId;
 
-        private BookReviewInfoDto bookReviewInfo;
+        private float averageScore;
+
+        private int reviewCount;
+
+        private Long bookReviewInfoId;
+
+        @Builder.Default
+        private String statusCode = BookStatus.AVAILABLE.getCode();
+
+        @Builder.Default
+        private String statusDesc = BookStatus.AVAILABLE.getDescription();
+
+        @Builder.Default
+        private List<AuthorDto> authors = new ArrayList<>();
+
+        private void setBook(BookDto book){
+            id = book.getId();
+            name = book.getName();
+            categoryName = book.getCategoryName();
+            categoryCode =book.getCategoryCode();
+
+            publisherName = book.getPublisherName();
+            publisherId = book.getPublisherId();
+
+            averageScore = book.getAverageScore();
+            reviewCount = book.getReviewCount();
+            bookReviewInfoId = book.getBookReviewInfoId();
+
+            authors = book.getAuthors();
+        }
+
+        public GetResponse(BookDto book){
+            this.setBook(book);
+        }
 
     }
 
-    static public class getListResponse{
-        private List<getResponse> books;
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    static public class GetListResponse{
+        private List<GetResponse> books;
 
         private int total;
+
+        public GetListResponse(List<BookDto> books){
+//            System.out.println(">>>>>>>>>>>>>>>>>>>" + books.get(0));
+            this.books = books.stream().map( book -> new GetResponse(book))
+            .collect(Collectors.toList());
+            this.total = books.size();
+        }
     }
 
 

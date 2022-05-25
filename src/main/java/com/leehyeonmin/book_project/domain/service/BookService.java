@@ -1,34 +1,32 @@
 package com.leehyeonmin.book_project.domain.service;
 
-import com.leehyeonmin.book_project.domain.Author;
-import com.leehyeonmin.book_project.domain.Publisher;
-import com.leehyeonmin.book_project.domain.dto.AuthorDto;
 import com.leehyeonmin.book_project.domain.dto.BookDto;
-import com.leehyeonmin.book_project.domain.dto.PublisherDto;
 import com.leehyeonmin.book_project.domain.dto.ReviewDto;
-import com.leehyeonmin.book_project.domain.request.AddBookRequest;
-import com.leehyeonmin.book_project.domain.response.BooksResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
 public interface BookService {
-    public BooksResponse getAllBooks();
+    public BookDto.GetListResponse getAllBooks();
 
-    public BookDto getBook(Long id);
+    public BookDto.GetResponse getBook(Long id);
 
-    public BooksResponse getBooksByCategoryId(Long categoryId, int start, int end);
+//    public BookDto.GetListResponse getBooksByCategory(String categoryCode, int start, int end);
+
+//    public int getTotalByCategory(String categoryCode);
+
+    Page<BookDto> getBooksByCategory(String categoryCode, Pageable pageable);
 
     public BookDto addBook(BookDto dto);
 
-    public BookDto modifyBasicInfo(Long id, String name, String category);
+    public BookDto modifyBasicInfo(Long id, String name, String categoryCode);
 
-    public void changeBookStatus(Long id, int statusCode);
-
-//    public BookDto changeAuthorOfBook(Long bookId, Long authorId);
+    public void changeBookStatus(Long id, String statusCode);
 
     public BookDto changePublisherOfBook(Long bookId, Long publisherId);
 
     public void removeBook(Long bookId);
 
-    public List<ReviewDto> getAllReviews(Long bookId);
+//    public List<ReviewDto.GetResponse> getAllReviews(Long bookId);
 }

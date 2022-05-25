@@ -1,6 +1,8 @@
 package com.leehyeonmin.book_project.domain.utils;
 
 import com.leehyeonmin.book_project.domain.*;
+import com.leehyeonmin.book_project.domain.Enum.BookStatus;
+import com.leehyeonmin.book_project.domain.Enum.Category;
 import com.leehyeonmin.book_project.domain.dto.*;
 import com.leehyeonmin.book_project.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -109,8 +111,8 @@ public class ToEntity{
         Book entity = Book.builder()
                 .id(dto.getId())
                 .name(dto.getName())
-                .category(dto.getCategory())
-                .status(new BookStatus(dto.getStatus()))
+                .category(Category.ofCode(dto.getCategoryCode()))
+                .status(BookStatus.ofCode(dto.getStatusCode()))
                 .bookAndAuthors(bookAndAuthors)
                 .publisher(publisher)
                 .bookReviewInfo(bookReviewInfo)

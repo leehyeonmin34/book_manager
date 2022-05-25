@@ -1,16 +1,14 @@
 package com.leehyeonmin.book_project.domain;
 
+import com.leehyeonmin.book_project.domain.Enum.BookStatus;
+import com.leehyeonmin.book_project.domain.Enum.Category;
+import com.leehyeonmin.book_project.domain.converter.BookStatusConverter;
+import com.leehyeonmin.book_project.domain.converter.CategoryConverter;
 import lombok.*;
-import org.hibernate.annotations.LazyCollection;
-import org.hibernate.annotations.LazyCollectionOption;
 
 import javax.persistence.*;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-
-import static java.util.Arrays.asList;
 
 @Entity
 @Builder
@@ -28,6 +26,7 @@ public class Book extends BaseEntity{
 
     private String name;
 
+    @Convert(converter = CategoryConverter.class)
     private Category category;
 
     @OneToMany(mappedBy = "book", fetch = FetchType.LAZY)
@@ -36,7 +35,8 @@ public class Book extends BaseEntity{
     private List<BookAndAuthor> bookAndAuthors = new ArrayList<>();
 
     @Builder.Default
-    private BookStatus status = new BookStatus(BookStatus.AVALABLE);
+    @Convert(converter = BookStatusConverter.class)
+    private BookStatus status = BookStatus.AVAILABLE;
 
     @JoinColumn(name = "PUBLISHER_ID")
     @ManyToOne
@@ -62,13 +62,13 @@ public class Book extends BaseEntity{
         publisher.addBooks(this);
     }
 
-    public void updateBasicInfo(String name, int categoryCode){
+    public void updateBasicInfo(String name, Category category){
         this.name = name;
-        this.category = new Category(categoryCode);
+        this.category = category;
     }
 
-    public void updateStatus(int code){
-        this.status.updateBookStatus(code);
+    public void updateStatus(BookStatus status){
+        this.status = status;
     }
 
     public void addBookAndAuthor(BookAndAuthor bookAndAuthor){

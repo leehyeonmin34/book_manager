@@ -1,13 +1,14 @@
 package com.leehyeonmin.book_project.domain.service;
 
 import com.leehyeonmin.book_project.domain.*;
+import com.leehyeonmin.book_project.domain.Enum.BookStatus;
+import com.leehyeonmin.book_project.domain.Enum.Category;
 import com.leehyeonmin.book_project.domain.dto.AuthorDto;
 import com.leehyeonmin.book_project.domain.dto.BookDto;
 import com.leehyeonmin.book_project.domain.dto.PublisherDto;
 import com.leehyeonmin.book_project.domain.dto.ReviewDto;
 import com.leehyeonmin.book_project.domain.exception.BusinessException.BusinessException;
 import com.leehyeonmin.book_project.domain.exception.BusinessException.EntityNotFoundException.EntityNotFoundException;
-import com.leehyeonmin.book_project.domain.request.AddBookRequest;
 import com.leehyeonmin.book_project.domain.response.BooksResponse;
 import com.leehyeonmin.book_project.domain.serviceImpl.BookServiceImpl;
 import com.leehyeonmin.book_project.domain.utils.RepoUtils;
@@ -23,13 +24,10 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceContext;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -83,7 +81,7 @@ public class BookServiceTest {
         lenient().doReturn(Collections.<BookDto>emptyList()).when(bookRepository).findAll();
 
         // when
-        BooksResponse result = bookService.getAllBooks();
+        BookDto.GetListResponse result = bookService.getAllBooks();
 
         // then
         assertThat(result.getBooks().size()).isEqualTo(0);
@@ -96,12 +94,14 @@ public class BookServiceTest {
     public void getAllBooksSuccessNotEmptyList(){
         //given
         List<Book> lst = givenBookList();
+//        lst.forEach(item -> System.out.println(item.getBookAndAuthors()));
         lenient().doReturn(lst).when(bookRepository).findAll();
-
+        lenient().when(toDto.from(any(Book.class))).thenReturn(bookDtoOut());
+//
         // when
-        BooksResponse result = bookService.getAllBooks();
-
-        // then
+        BookDto.GetListResponse result = bookService.getAllBooks();
+//
+//        // then
         assertThat(result.getBooks()).isNotNull();
         assertThat(result.getBooks().size()).isEqualTo(lst.size());
         assertThat(result.getTotal()).isEqualTo(lst.size());
@@ -115,6 +115,7 @@ public class BookServiceTest {
         lenient().when(repoUtils.getOneElseThrowException(any(PublisherRepository.class), any(Long.class)))
                 .thenThrow(EntityNotFoundException.class);
 
+
         assertThatThrownBy(() -> bookService.addBook(bookDto)).isInstanceOf(BusinessException.class);
     }
 
@@ -126,14 +127,15 @@ public class BookServiceTest {
         Publisher publisher = publisherOut();
         BookDto bookDto = BookDto.builder()
                 .name("책 이름")
-                .category("카테고리")
+                .categoryCode(Category.ART.getCode())
+                .categoryName(Category.ART.getDesc())
                 .publisherId(publisher.getId())
-                .authorId(author.getId())
+                .authors(List.of(authorDtoOut()))
                 .build();
 
         lenient().when(repoUtils.getOneElseThrowException(any(PublisherRepository.class), any(Long.class))).thenReturn(publisher);
-        lenient().when(repoUtils.getOneElseThrowException(any(AuthorRepository.class), any(Long.class))).thenReturn(author);
-        lenient().when(bookRepository.getById(any(Long.class))).thenReturn(bookOut());
+        lenient().when(authorRepository.findAllById(any(List.class))).thenReturn(List.of(authorOut()));
+        lenient().when(bookRepository.save(any(Book.class))).thenReturn(bookOut());
         lenient().when(toDto.from(any(Book.class))).thenReturn(bookDtoOut());
 
         // when - then
@@ -158,41 +160,41 @@ public class BookServiceTest {
     }
 
 
-    @Test
-    @DisplayName("book 모든 리뷰 가져오기 Fail")
-    public void getAllReviewsTestFail(){
-        // given
-        lenient().when(bookRepository.existsById(any(Long.class))).thenReturn(false);
+//    @Test
+//    @DisplayName("book 모든 리뷰 가져오기 Fail")
+//    public void getAllReviewsTestFail(){
+//        // given
+//        lenient().when(bookRepository.existsById(any(Long.class))).thenReturn(false);
+//
+//        // when - then
+//        assertThatThrownBy(() -> bookService.getAllReviews(999L)).isInstanceOf(EntityNotFoundException.class);
+//    }
 
-        // when - then
-        assertThatThrownBy(() -> bookService.getAllReviews(999L)).isInstanceOf(EntityNotFoundException.class);
-    }
-
-    @Test
-    @DisplayName("book 모든 리뷰 가져오기 Success")
-    public void getAllReviewsTestSuccess(){
-        // given
-        List<Review> lst = givenReviewList();
-        lenient().when(bookRepository.existsById(any(Long.class))).thenReturn(true);
-        lenient().when(reviewRepository.getByBookId(999L)).thenReturn(lst);
-
-        // when
-        List<ReviewDto> result = bookService.getAllReviews(999L);
-
-        // then
-        assertThat(result.isEmpty()).isFalse();
-        assertThat(result.size()).isEqualTo(lst.size());
-
-    }
+//    @Test
+//    @DisplayName("book 모든 리뷰 가져오기 Success")
+//    public void getAllReviewsTestSuccess(){
+//        // given
+//        List<Review> lst = givenReviewList();
+//        lenient().when(bookRepository.existsById(any(Long.class))).thenReturn(true);
+//        lenient().when(reviewRepository.getByBookId(999L)).thenReturn(lst);
+//
+//        // when
+//        List<ReviewDto> result = bookService.getAllReviews(999L);
+//
+//        // then
+//        assertThat(result.isEmpty()).isFalse();
+//        assertThat(result.size()).isEqualTo(lst.size());
+//
+//    }
 
 
     private BookDto bookDtoIn(){
         BookDto bookDto = BookDto.builder()
                 .name("책 이름")
-                .category("카테고리")
-                .authorId(999L)
+                .categoryCode(Category.ART.getCode())
+                .authors(List.of(AuthorDto.builder().id(1L).build()))
                 .publisherId(999L)
-                .status(BookStatus.AVALABLE)
+                .statusCode(BookStatus.AVAILABLE.getCode())
                 .build();
         return bookDto;
     }
@@ -207,7 +209,7 @@ public class BookServiceTest {
         BookDto dto = bookDtoIn();
         Book book = Book.builder()
                 .name(dto.getName())
-                .category(dto.getCategory())
+                .category(Category.ART)
                 .build();
         return book;
     }
@@ -293,13 +295,25 @@ public class BookServiceTest {
 
     private List<Book> givenBookList(){
         List<Book> lst = new ArrayList<>();
+        List<BookAndAuthor> bookAndAuthors = new ArrayList<>();
+
         for(int i = 0; i < 5; i++){
             Book book = Book.builder()
                     .name("책 이름")
+                    .category(Category.ART)
+                    .bookReviewInfo(BookReviewInfo.builder().id(1L).build())
+                    .status(BookStatus.AVAILABLE)
                     .id(999L)
                     .build();
+            BookAndAuthor BAA = BookAndAuthor.builder().build();
+            BAA.updateBook(book);
+            BAA.updateAuthor(Author.builder().id(Long.valueOf(i)).build());
+            book.addBookAndAuthor(BAA);
+            book.updatePublisher(publisherOut());
             lst.add(book);
         }
+
+
         return lst;
     }
 

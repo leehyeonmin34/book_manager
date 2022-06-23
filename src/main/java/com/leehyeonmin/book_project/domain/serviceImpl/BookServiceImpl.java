@@ -5,6 +5,7 @@ import com.leehyeonmin.book_project.domain.Enum.BookStatus;
 import com.leehyeonmin.book_project.domain.Enum.Category;
 import com.leehyeonmin.book_project.domain.dto.*;
 import com.leehyeonmin.book_project.domain.exception.BusinessException.BusinessException;
+import com.leehyeonmin.book_project.domain.exception.BusinessException.InvalidValueException.InvalidValueException;
 import com.leehyeonmin.book_project.domain.service.BookService;
 import com.leehyeonmin.book_project.domain.utils.RepoUtils;
 import com.leehyeonmin.book_project.domain.utils.ToDto;
@@ -64,7 +65,10 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public Page<BookDto> getBooksByCategory(String categoryCode, Pageable pageable){
-        return bookRepository.findByCategory(categoryCode, pageable).map(BookDto::new);
+        if (categoryCode == Category.ALL.getCode())
+            return bookRepository.findAll(pageable).map(BookDto::new);
+        else
+            return bookRepository.findByCategory(Category.ofCode(categoryCode), pageable).map(BookDto::new);
     }
 
 //    @Override

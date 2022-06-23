@@ -22,21 +22,21 @@ public class PublisherServiceImpl implements PublisherService {
     final private RepoUtils repoUtils;
 
     @Override
-    public List<PublisherDto> findAllPublishers() {
-        return publisherRepository.findAll().stream().map(item -> toDto.from(item)).collect(Collectors.toList());
+    public PublisherDto.GetListResponse getAllPublishers() {
+        return new PublisherDto.GetListResponse(publisherRepository.findAll());
     }
 
     @Override
-    public PublisherDto findPublisher(Long id) {
+    public PublisherDto.GetResponse getPublisher(Long id) {
         Publisher entity = repoUtils.getOneElseThrowException(publisherRepository, id);
-        return toDto.from(entity);
+        return new PublisherDto.GetResponse(entity);
     }
 
     @Override
-    public PublisherDto addPublisher(PublisherDto dto) {
+    public PublisherDto.GetResponse addPublisher(PublisherDto dto) {
         Publisher entity = toEntity.from(dto);
         Publisher saved = publisherRepository.save(entity);
-        return toDto.from(saved);
+        return new PublisherDto.GetResponse(saved);
     }
 
     @Override

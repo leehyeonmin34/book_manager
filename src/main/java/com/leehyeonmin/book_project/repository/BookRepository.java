@@ -1,6 +1,7 @@
 package com.leehyeonmin.book_project.repository;
 
 import com.leehyeonmin.book_project.domain.Book;
+import com.leehyeonmin.book_project.domain.Enum.Category;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -15,5 +16,7 @@ public interface BookRepository extends JpaRepository<Book, Long> {
 
     public Long countByCategory(String category);
 
-    public Page<Book> findByCategory(String categoryCode, Pageable pageable);
+    public Page<Book> findByCategory(Category category, Pageable pageable);
+
+    public Page<Book> findAll(Pageable pageable);
 }

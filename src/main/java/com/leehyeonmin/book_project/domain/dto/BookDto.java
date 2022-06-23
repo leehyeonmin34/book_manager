@@ -47,25 +47,30 @@ public class BookDto extends BaseDto{
     public BookDto(Book book){
         id = book.getId();
         name = book.getName();
-        categoryName = book.getCategory().getDesc();
-        categoryCode =book.getCategory().getCode();
-
-        statusCode = book.getStatus().getCode();
-        statusDesc = book.getStatus().getDescription();
-
-        publisherName = book.getPublisher().getName();
-        publisherId = book.getPublisher().getId();
-
-        averageScore = book.getBookReviewInfo().getAverageReviewScore();
-        reviewCount = book.getBookReviewInfo().getReviewCount();
-        bookReviewInfoId = book.getBookReviewInfo().getId();
-
+        if(book.getCategory() != null) {
+            categoryName = book.getCategory().getDesc();
+            categoryCode = book.getCategory().getCode();
+        }
+        if(book.getStatus() != null) {
+            statusCode = book.getStatus().getCode();
+            statusDesc = book.getStatus().getDescription();
+        }
+        if(book.getPublisher() != null) {
+            publisherName = book.getPublisher().getName();
+            publisherId = book.getPublisher().getId();
+        }
+        if(book.getBookReviewInfo() != null) {
+            averageScore = book.getBookReviewInfo().getAverageReviewScore();
+            reviewCount = book.getBookReviewInfo().getReviewCount();
+            bookReviewInfoId = book.getBookReviewInfo().getId();
+        }
         authors = book.getBookAndAuthors().stream().map(item -> new AuthorDto(item.getAuthor())).collect(Collectors.toList());
     }
 
 
     @Getter
-    @Builder
+    @Setter
+    @NoArgsConstructor
     static public class AddRequest{
 
         @NotBlank(message = "책 이름은 빈 값일 수 없습니다.",
@@ -74,7 +79,6 @@ public class BookDto extends BaseDto{
 
         private String categoryCode;
 
-        @Builder.Default
         private String statusCode = BookStatus.AVAILABLE.getCode();
 
         @NotBlank(message = "출판사 아이디는 빈 값일 수 없습니다.",
@@ -162,7 +166,6 @@ public class BookDto extends BaseDto{
         private int total;
 
         public GetListResponse(List<BookDto> books){
-//            System.out.println(">>>>>>>>>>>>>>>>>>>" + books.get(0));
             this.books = books.stream().map( book -> new GetResponse(book))
             .collect(Collectors.toList());
             this.total = books.size();

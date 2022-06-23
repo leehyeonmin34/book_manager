@@ -6,10 +6,8 @@ import com.leehyeonmin.book_project.domain.Enum.Category;
 import com.leehyeonmin.book_project.domain.dto.AuthorDto;
 import com.leehyeonmin.book_project.domain.dto.BookDto;
 import com.leehyeonmin.book_project.domain.dto.PublisherDto;
-import com.leehyeonmin.book_project.domain.dto.ReviewDto;
 import com.leehyeonmin.book_project.domain.exception.BusinessException.BusinessException;
 import com.leehyeonmin.book_project.domain.exception.BusinessException.EntityNotFoundException.EntityNotFoundException;
-import com.leehyeonmin.book_project.domain.response.BooksResponse;
 import com.leehyeonmin.book_project.domain.serviceImpl.BookServiceImpl;
 import com.leehyeonmin.book_project.domain.utils.RepoUtils;
 import com.leehyeonmin.book_project.domain.utils.ToDto;
@@ -22,6 +20,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.*;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -106,6 +105,25 @@ public class BookServiceTest {
         assertThat(result.getBooks().size()).isEqualTo(lst.size());
         assertThat(result.getTotal()).isEqualTo(lst.size());
     }
+
+    @Test
+    @DisplayName("카테고리별 book 리스트 Success")
+    public void getBooksByCategory(){
+        // given
+        String categoryCode = Category.ART.getCode();
+        PageRequest pageRequest = PageRequest.of(1, 3, Sort.by("createdAt"));
+        List<Book> books = new ArrayList<>();
+        for(int i = 0; i < 5; i ++)
+            books.add(Book.builder().category(Category.ART).id(Long.valueOf(i)).build());
+        lenient().when(bookRepository.findByCategory(any(Category.class), any(Pageable.class)))
+                .thenReturn(new PageImpl<>(books));
+        // when
+        Page<BookDto> result = bookService.getBooksByCategory(Category.ART.getCode(), pageRequest);
+
+        // then
+        assertThat(result.getContent().get(0).getCategoryCode()).isEqualTo(categoryCode);
+    }
+
 
     @Test
     @DisplayName("book 추가 Failure - Publisher Entity Not Found")

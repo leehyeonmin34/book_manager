@@ -22,7 +22,7 @@ public enum Category{
     LITERATURE("문학", "800"),
     HISTORY("역사","900"),
     NONE("카테고리 없음", "-1"),
-    ALL("모든 카테고리", "1");
+    ALL("모든 카테고리", "0");
 
     private final String desc;
     private final String code;

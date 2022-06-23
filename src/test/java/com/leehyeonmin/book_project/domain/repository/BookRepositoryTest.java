@@ -2,6 +2,7 @@ package com.leehyeonmin.book_project.domain.repository;
 
 import com.leehyeonmin.book_project.domain.*;
 import com.leehyeonmin.book_project.domain.Enum.Category;
+import com.leehyeonmin.book_project.domain.dto.AuthorDto;
 import com.leehyeonmin.book_project.domain.dto.BookDto;
 import com.leehyeonmin.book_project.domain.utils.RepoUtils;
 import com.leehyeonmin.book_project.domain.utils.ToDto;
@@ -20,11 +21,15 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Transient;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
@@ -51,8 +56,8 @@ public class BookRepositoryTest {
     EntityManager em;
 
 
-    @Autowired
-    ToDto toDto;
+//    @Autowired
+//    ToDto toDto;
 
     @BeforeEach
     public void beforeEach(){
@@ -105,6 +110,34 @@ public class BookRepositoryTest {
         bookAndAuthorId = savedBookAndAuthor.getId();
 
 
+    }
+
+    @Test
+    @DisplayName("findByCategory(Pageable) - 성공")
+    public void findByCategoryTest(){
+        // given
+        Category category = Category.ART;
+        int pageNum = 1;
+        int size = 4;
+        int total = 10;
+        List<Book> books = new ArrayList<>();
+        for(int i = 0 ; i < total; i ++) {
+            Book book = Book.builder().category(category).id(Long.valueOf(i * 10)).build();
+            bookRepository.save(book);
+            books.add(book);
+        }
+        PageRequest page = PageRequest.of(0, size);
+        PageRequest page2 = PageRequest.of(total / size , size);
+
+        // when
+        Page<Book> result = bookRepository.findByCategory(category, page);
+        Page<Book> result2 = bookRepository.findByCategory(category, page2);
+
+        // then
+        assertThat(result.getContent().get(0).getCategory()).isEqualTo(category);
+        assertThat(result2.getContent().size()).isEqualTo(total % size);
+
+        assertThat(result.getTotalElements()).isEqualTo(total);
     }
 
     @Test
@@ -282,7 +315,7 @@ public class BookRepositoryTest {
                 .categoryCode(Category.ART.getCode())
                 .categoryName(Category.ART.getDesc())
                 .publisherId(publisherId)
-                .authors(List.of(toDto.from(author)))
+                .authors(List.of(new AuthorDto(author)))
                 .build();
 
         // when

@@ -10,7 +10,6 @@ import com.leehyeonmin.book_project.domain.exception.BusinessException.EntityNot
 import com.leehyeonmin.book_project.domain.exception.NoEntityException;
 import com.leehyeonmin.book_project.domain.service.AuthorService;
 import com.leehyeonmin.book_project.domain.utils.RepoUtils;
-import com.leehyeonmin.book_project.domain.utils.ToDto;
 import com.leehyeonmin.book_project.domain.utils.ToEntity;
 import com.leehyeonmin.book_project.repository.AuthorRepository;
 import com.leehyeonmin.book_project.repository.BookAndAuthorRepository;
@@ -38,26 +37,23 @@ public class AuthorServiceImpl implements AuthorService {
 
     final private ToEntity toEntity;
 
-    final private ToDto toDto;
-
     final private RepoUtils repoUtils;
 
     @Override
-    public List<AuthorDto> getAllAuthors() {
-        return authorRepository.findAll().stream().map(
-                item -> toDto.from(item)).collect(Collectors.toList());
+    public AuthorDto.GetListResponse getAllAuthors() {
+        return new AuthorDto.GetListResponse(authorRepository.findAll());
     }
 
     @Override
-    public AuthorDto getAuthor(Long id) throws BusinessException{
+    public AuthorDto.GetResponse getAuthor(Long id) throws BusinessException{
         Author author = repoUtils.getOneElseThrowException(authorRepository, id);
-        return toDto.from(author);
+        return new AuthorDto.GetResponse(author);
     }
 
     @Override
-    public AuthorDto addAuthor(AuthorDto dto){
+    public AuthorDto.GetResponse addAuthor(AuthorDto dto){
         Author saved = authorRepository.save(toEntity.from(dto));
-        return toDto.from(saved);
+        return new AuthorDto.GetResponse(saved);
     }
 
     @Override
@@ -71,7 +67,7 @@ public class AuthorServiceImpl implements AuthorService {
     }
 
     @Override
-    public AuthorDto modifyBasicInfo(Long id, String name, String country) throws BusinessException{
+    public AuthorDto.GetResponse modifyBasicInfo(Long id, String name, String country) throws BusinessException{
 
         //author 로드
         Author author = repoUtils.getOneElseThrowException(authorRepository, id);
@@ -81,7 +77,7 @@ public class AuthorServiceImpl implements AuthorService {
         Author saved = authorRepository.save(author);
 
         // 리턴
-        return toDto.from(saved);
+        return new AuthorDto.GetResponse(saved);
     }
 
     @Override

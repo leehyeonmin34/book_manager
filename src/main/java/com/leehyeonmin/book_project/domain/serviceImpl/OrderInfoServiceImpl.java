@@ -26,74 +26,74 @@ import static java.time.LocalDateTime.now;
 
 @Service
 @RequiredArgsConstructor
-public class OrderInfoServiceImpl implements OrderInfoService {
+public class OrderInfoServiceImpl {
 
-    private final OrderInfoRepository orderInfoRepository;
-    private final ModelMapper modelMapper;
-    private final BookRepository bookRepository;
-    private final UserRepository userRepository;
-    private final OrderItemRepository orderItemRepository;
-    private final ToEntity toEntity;
-    private final ToDto toDto;
+//    private final OrderInfoRepository orderInfoRepository;
+//    private final ModelMapper modelMapper;
+//    private final BookRepository bookRepository;
+//    private final UserRepository userRepository;
+//    private final OrderItemRepository orderItemRepository;
+//    private final ToEntity toEntity;
+//    private final ToDto toDto;
+//
+//    @Override
+//    @Transactional
+//    public OrderInfoDto addOrderInfo(OrderInfoUpdateRequest orderInfoUpdateRequest){
+//
+//        if (orderInfoUpdateRequest.getOrderItems() == null || orderInfoUpdateRequest.getOrderItems().size() == 0){
+//            return null;
+//        }
+//
+//        User user = userRepository.findById(orderInfoUpdateRequest.getUserId()).get();
+//        OrderInfo orderInfo = new OrderInfo();
+//        orderInfo.setUser(user);
+//        orderInfo.setOrderDate(now());
+//
+//        for(OrderItemUpdateRequest orderItemUpdateRequest : orderInfoUpdateRequest.getOrderItems()){
+//            OrderItem orderItem = new OrderItem();
+//            Book book = bookRepository.findById(orderItemUpdateRequest.getBookId()).get();
+//            int ea = orderItemUpdateRequest.getEa();
+//
+//            orderItem.setEa(ea);
+//            orderItem.setBook(book);
+//            orderItem.setOrderInfo(orderInfo);
+//            orderInfo.addOrderItems(orderItem);
+//            orderItemRepository.save(orderItem);
+//        }
+//        OrderInfo saved = orderInfoRepository.save(orderInfo);
+//
+//        return toDto.from(saved);
+//    }
+//
+////    @Override
+////    @Transactional
+////    public List<OrderInfoDto> findAllOrderInfo() {
+////        return orderInfoRepository.findAll().stream()
+////                .map(orderInfo -> toDto.from(orderInfo)).collect(Collectors.toList());
+////    }
+//
+//    @Override
+//    @Transactional
+//    public OrderInfoDto findOrderInfo(Long id) {
+//        return toDto.from(orderInfoRepository.getById(id));
+//    }
+//
+//    @Override
+//    @Transactional
+//    public Boolean removeOrderInfo(Long id) {
+//        if(orderInfoRepository.findById(id).isPresent()) {
+//            orderInfoRepository.deleteById(id);
+//            return true;
+//        } else {
+//            return false;
+//        }
+//    }
 
-    @Override
-    @Transactional
-    public OrderInfoDto addOrderInfo(OrderInfoUpdateRequest orderInfoUpdateRequest){
-
-        if (orderInfoUpdateRequest.getOrderItems() == null || orderInfoUpdateRequest.getOrderItems().size() == 0){
-            return null;
-        }
-
-        User user = userRepository.findById(orderInfoUpdateRequest.getUserId()).get();
-        OrderInfo orderInfo = new OrderInfo();
-        orderInfo.setUser(user);
-        orderInfo.setOrderDate(now());
-
-        for(OrderItemUpdateRequest orderItemUpdateRequest : orderInfoUpdateRequest.getOrderItems()){
-            OrderItem orderItem = new OrderItem();
-            Book book = bookRepository.findById(orderItemUpdateRequest.getBookId()).get();
-            int ea = orderItemUpdateRequest.getEa();
-
-            orderItem.setEa(ea);
-            orderItem.setBook(book);
-            orderItem.setOrderInfo(orderInfo);
-            orderInfo.addOrderItems(orderItem);
-            orderItemRepository.save(orderItem);
-        }
-        OrderInfo saved = orderInfoRepository.save(orderInfo);
-
-        return toDto.from(saved);
-    }
-
-    @Override
-    @Transactional
-    public List<OrderInfoDto> findAllOrderInfo() {
-        return orderInfoRepository.findAll().stream()
-                .map(orderInfo -> toDto.from(orderInfo)).collect(Collectors.toList());
-    }
-
-    @Override
-    @Transactional
-    public OrderInfoDto findOrderInfo(Long id) {
-        return toDto.from(orderInfoRepository.getById(id));
-    }
-
-    @Override
-    @Transactional
-    public Boolean removeOrderInfo(Long id) {
-        if(orderInfoRepository.findById(id).isPresent()) {
-            orderInfoRepository.deleteById(id);
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    @Override
-    @Transactional
-    public OrderInfoDto modifyOrderInfo(OrderInfoDto orderInfoDto) {
-        OrderInfo updated = orderInfoRepository.save(toEntity.from(orderInfoDto));
-        return toDto.from(updated);
-    }
+//    @Override
+//    @Transactional
+//    public OrderInfoDto modifyOrderInfo(OrderInfoDto orderInfoDto) {
+//        OrderInfo updated = orderInfoRepository.save(toEntity.from(orderInfoDto));
+//        return toDto.from(updated);
+//    }
 
 }

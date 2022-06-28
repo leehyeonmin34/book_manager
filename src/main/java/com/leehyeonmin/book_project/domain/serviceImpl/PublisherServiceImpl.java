@@ -5,20 +5,20 @@ import com.leehyeonmin.book_project.domain.dto.PublisherDto;
 import com.leehyeonmin.book_project.domain.exception.BusinessException.EntityNotFoundException.EntityNotFoundException;
 import com.leehyeonmin.book_project.domain.service.PublisherService;
 import com.leehyeonmin.book_project.domain.utils.RepoUtils;
-import com.leehyeonmin.book_project.domain.utils.ToDto;
 import com.leehyeonmin.book_project.domain.utils.ToEntity;
 import com.leehyeonmin.book_project.repository.PublisherRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
+@Service
 public class PublisherServiceImpl implements PublisherService {
     final private PublisherRepository publisherRepository;
 
     final private ToEntity toEntity;
-    final private ToDto toDto;
     final private RepoUtils repoUtils;
 
     @Override

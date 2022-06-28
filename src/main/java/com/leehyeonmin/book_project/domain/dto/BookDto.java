@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 @SuperBuilder
 @ToString(callSuper = true)
 @NoArgsConstructor
+
 public class BookDto extends BaseDto{
 
 
@@ -64,7 +65,8 @@ public class BookDto extends BaseDto{
             reviewCount = book.getBookReviewInfo().getReviewCount();
             bookReviewInfoId = book.getBookReviewInfo().getId();
         }
-        authors = book.getBookAndAuthors().stream().map(item -> new AuthorDto(item.getAuthor())).collect(Collectors.toList());
+        authors = book.getBookAndAuthors().stream()
+                .map(item -> new AuthorDto(item.getAuthor())).collect(Collectors.toList());
     }
 
 
@@ -133,26 +135,34 @@ public class BookDto extends BaseDto{
         private String statusDesc = BookStatus.AVAILABLE.getDescription();
 
         @Builder.Default
-        private List<AuthorDto> authors = new ArrayList<>();
+        private AuthorDto.GetListResponse authors = AuthorDto.GetListResponse.builder().build();
 
-        private void setBook(BookDto book){
+        public GetResponse(Book book){
+
             id = book.getId();
             name = book.getName();
-            categoryName = book.getCategoryName();
-            categoryCode =book.getCategoryCode();
+            if(book.getCategory() != null) {
+                categoryName = book.getCategory().getDesc();
+                categoryCode = book.getCategory().getCode();
+            }
+            if(book.getStatus() != null) {
+                statusCode = book.getStatus().getCode();
+                statusDesc = book.getStatus().getDescription();
+            }
+            if(book.getPublisher() != null) {
+                publisherName = book.getPublisher().getName();
+                publisherId = book.getPublisher().getId();
+            }
+            if(book.getBookReviewInfo() != null) {
+                averageScore = book.getBookReviewInfo().getAverageReviewScore();
+                reviewCount = book.getBookReviewInfo().getReviewCount();
+                bookReviewInfoId = book.getBookReviewInfo().getId();
+            }
 
-            publisherName = book.getPublisherName();
-            publisherId = book.getPublisherId();
+            authors = new AuthorDto.GetListResponse(
+                    book.getBookAndAuthors().stream().map(item -> item.getAuthor()).collect(Collectors.toList())
+            );
 
-            averageScore = book.getAverageScore();
-            reviewCount = book.getReviewCount();
-            bookReviewInfoId = book.getBookReviewInfoId();
-
-            authors = book.getAuthors();
-        }
-
-        public GetResponse(BookDto book){
-            this.setBook(book);
         }
 
     }
@@ -161,11 +171,13 @@ public class BookDto extends BaseDto{
     @Builder
     @AllArgsConstructor
     static public class GetListResponse{
-        private List<GetResponse> books;
+        @Builder.Default
+        private List<GetResponse> books = new ArrayList<>();
 
-        private int total;
+        @Builder.Default
+        private int total = 0;
 
-        public GetListResponse(List<BookDto> books){
+        public GetListResponse(List<Book> books){
             this.books = books.stream().map( book -> new GetResponse(book))
             .collect(Collectors.toList());
             this.total = books.size();

@@ -7,11 +7,14 @@ import com.leehyeonmin.book_project.domain.dto.*;
 import com.leehyeonmin.book_project.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.context.annotation.Bean;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Component
 @RequiredArgsConstructor
 public class ToEntity{
 
@@ -42,68 +45,9 @@ public class ToEntity{
 //    public BaseEntity from(BaseDto dto){
 //        return null;
 
+
 //    }
-
-    public <E extends BaseEntity, D extends BaseDto> E from(D dto) {
-        return from(dto);
-    }
-
-    private OrderInfo from(OrderInfoDto dto){
-        List<OrderItem> orderItems = dto.getOrderItems().stream()
-                .map(item -> from(item)).collect(Collectors.toList());
-
-        User user = userRepository.getById(dto.getUserId());
-
-        OrderInfo entity = OrderInfo.builder()
-                .orderDate(dto.getOrderDate())
-                .id(dto.getId())
-                .orderItems(orderItems)
-                .user(user)
-                .build();
-        return entity;
-    }
-
-    private OrderItem from(OrderItemDto dto){
-
-        OrderInfo orderInfo = orderInfoRepository.findById(dto.getOrderInfoId()).get();
-
-        Book book = bookRepository.findById(dto.getBookId()).get();
-
-        OrderItem entity = OrderItem.builder()
-                .ea(dto.getEa())
-                .arriveDate(dto.getArriveDate())
-                .orderInfo(orderInfo)
-                .book(book)
-                .build();
-        return entity;
-    }
-
-    private User from(UserDto dto){
-
-        List<CartItem> cartItems = cartItemRepository.findByUserId(dto.getId());
-
-        List<OrderInfo> orderInfos = orderInfoRepository.findByUserId(dto.getId());
-
-        List<Review> reviews = reviewRepository.getByUserId(dto.getId());
-
-        List<UserHistory> userHistories = userHistoryRepository.findByUserId(dto.getId());
-
-        User entity = User.builder()
-                .id(dto.getId())
-                .email(dto.getEmail())
-                .gender(GenderDto.valueOf(dto.getGender()))
-                .name(dto.getName())
-                .companyAddress(modelMapper.map(dto.getCompanyAddress(), Address.class))
-                .homeAddress(modelMapper.map(dto.getHomeAddress(), Address.class))
-                .cartItems(cartItems)
-                .orderInfos(orderInfos)
-                .reviews(reviews)
-                .userHistories(userHistories)
-                .build();
-        return entity;
-    }
-
-    private Book from(BookDto dto){
+    public Book from(BookDto dto){
         List<BookAndAuthor> bookAndAuthors = bookRepository.findById(dto.getId()).get().getBookAndAuthors();
         Publisher publisher = publisherRepository.findById(dto.getPublisherId()).get();
         BookReviewInfo bookReviewInfo = bookReviewInfoRepository.findById(dto.getBookReviewInfoId()).get();
@@ -120,7 +64,7 @@ public class ToEntity{
         return entity;
     }
 
-    private BookReviewInfo from(BookReviewInfoDto dto){
+    public BookReviewInfo from(BookReviewInfoDto dto){
 
         BookReviewInfo entity = BookReviewInfo.builder()
                 .id(dto.getId())
@@ -130,7 +74,7 @@ public class ToEntity{
         return entity;
     }
 
-    private Author from(AuthorDto dto){
+    public Author from(AuthorDto dto){
         List<BookAndAuthor> bookAndAuthors = new ArrayList<>();
         Author entity;
         if (dto == null){
@@ -148,7 +92,18 @@ public class ToEntity{
         return entity;
     }
 
-    private CartItem from(CartItemDto dto){
+    public Publisher from(PublisherDto dto){
+
+        List<Book> books = bookRepository.findAll().stream().collect(Collectors.toList());
+
+        Publisher entity = Publisher.builder()
+                .id(dto.getId())
+                .name(dto.getName())
+                .books(books)
+                .build();
+        return entity;
+    }
+    public CartItem from(CartItemDto dto){
 
         User user = userRepository.getById(dto.getUserId());
 
@@ -163,7 +118,7 @@ public class ToEntity{
         return entity;
     }
 
-    private Review from(ReviewDto dto){
+    public Review from(ReviewDto dto){
 
         User user = userRepository.getById(dto.getUserId());
         Book book = bookRepository.getById(dto.getBookId());
@@ -177,21 +132,10 @@ public class ToEntity{
                 .book(book)
                 .build();
         return entity;
+
     }
 
-    private Publisher from(PublisherDto dto){
-
-        List<Book> books = bookRepository.findAll().stream().collect(Collectors.toList());
-
-        Publisher entity = Publisher.builder()
-                .id(dto.getId())
-                .name(dto.getName())
-                .books(books)
-                .build();
-        return entity;
-    }
-
-    private Address from(AddressDto dto){
+    public Address from(AddressDto dto){
         Address entity = Address.builder()
                 .city(dto.getCity())
                 .detail(dto.getAddressDetail())
@@ -200,5 +144,4 @@ public class ToEntity{
                 .build();
         return entity;
     }
-
 }

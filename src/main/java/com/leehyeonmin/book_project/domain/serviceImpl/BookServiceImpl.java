@@ -8,13 +8,13 @@ import com.leehyeonmin.book_project.domain.exception.BusinessException.BusinessE
 import com.leehyeonmin.book_project.domain.exception.BusinessException.InvalidValueException.InvalidValueException;
 import com.leehyeonmin.book_project.domain.service.BookService;
 import com.leehyeonmin.book_project.domain.utils.RepoUtils;
-import com.leehyeonmin.book_project.domain.utils.ToDto;
 import com.leehyeonmin.book_project.domain.utils.ToEntity;
 import com.leehyeonmin.book_project.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Transactional
+@Service
 public class BookServiceImpl implements BookService {
 
     final private BookRepository bookRepository;
@@ -40,8 +41,6 @@ public class BookServiceImpl implements BookService {
 
     final private ToEntity toEntity;
 
-    final private ToDto toDto;
-
     final private RepoUtils repoUtils;
 
     @PersistenceContext
@@ -49,18 +48,13 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public BookDto.GetListResponse getAllBooks() {
-        List<BookDto> bookDtos = bookRepository.findAll().stream()
-                .map(item -> toDto.from(item))
-                .collect(Collectors.toList());
-
-        BookDto.GetListResponse response = new BookDto.GetListResponse(bookDtos);
-        return response;
+        return new BookDto.GetListResponse(bookRepository.findAll());
     }
 
     @Override
     public BookDto.GetResponse getBook(Long id) throws BusinessException{
         Book entity = repoUtils.getOneElseThrowException(bookRepository, id);
-        return new BookDto.GetResponse(toDto.from(entity));
+        return new BookDto.GetResponse(entity);
     }
 
     @Override
@@ -113,7 +107,7 @@ public class BookServiceImpl implements BookService {
         Book result = bookRepository.save(book);
 
         // 리턴
-        return toDto.from(result);
+        return new BookDto(result);
     }
 
     @Override
@@ -122,7 +116,7 @@ public class BookServiceImpl implements BookService {
         Book book = repoUtils.getOneElseThrowException(bookRepository, id);
         book.updateBasicInfo(name, Category.ofCode(categoryCode));
         Book result = bookRepository.save(book); // 새 bookAndAuthor가 적용된 book 다시 로드
-        return toDto.from(result);
+        return new BookDto(result);
     }
 
     @Override
@@ -149,7 +143,7 @@ public class BookServiceImpl implements BookService {
 
         // 저장 후 리턴
         Book result = bookRepository.save(book);
-        return toDto.from(result);
+        return new BookDto(result);
     }
 
     @Override

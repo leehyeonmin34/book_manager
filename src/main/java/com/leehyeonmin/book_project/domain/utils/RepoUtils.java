@@ -8,6 +8,7 @@ import com.leehyeonmin.book_project.domain.exception.ErrorCode;
 import com.leehyeonmin.book_project.domain.exception.BusinessException.BusinessException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
@@ -15,11 +16,12 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @Transactional
+@Component
 public class RepoUtils {
 
-    final private ToEntity toEntity;
+//    final private ToEntity toEntity;
 
-    final private ToDto toDto;
+//    final private ToDto toDto;
 
     public <R extends JpaRepository<E, Long>, E extends BaseEntity> E getOneElseThrowException(R repository, Long id) throws EntityNotFoundException{
         return repository.findById(id)

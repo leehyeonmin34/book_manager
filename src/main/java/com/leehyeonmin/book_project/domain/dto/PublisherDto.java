@@ -1,16 +1,13 @@
 package com.leehyeonmin.book_project.domain.dto;
 
-import com.leehyeonmin.book_project.domain.Book;
 import com.leehyeonmin.book_project.domain.Publisher;
 import com.leehyeonmin.book_project.domain.validations.ValidationGroups;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import net.bytebuddy.implementation.bind.annotation.Super;
 
-import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,7 +21,6 @@ public class PublisherDto extends BaseDto{
 
     @NotBlank(groups = { ValidationGroups.normal.class })
     private String name;
-
 
     @Getter
     @Builder
@@ -45,14 +41,30 @@ public class PublisherDto extends BaseDto{
     @Getter
     @Builder
     @AllArgsConstructor
-    static public class GetListResponse{
-        private List<GetResponse> publishers;
+    static public class GetListResponse {
 
-        private int total;
+        @Builder.Default
+        private List<GetResponse> publishers = new ArrayList<>();
 
-        public GetListResponse(List<Publisher> entities){
+        @Builder.Default
+        private int total = 0;
+
+        public GetListResponse(List<Publisher> entities) {
             this.publishers = entities.stream().map(item -> new GetResponse(item)).collect(Collectors.toList());
             this.total = publishers.size();
+        }
+    }
+
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    static public class Request{
+        private String name;
+        private Long id;
+
+        public PublisherDto toServiceDto(){
+            return PublisherDto.builder().name(name).id(id).build();
         }
 
     }

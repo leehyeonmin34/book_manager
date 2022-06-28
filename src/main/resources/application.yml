@@ -10,11 +10,12 @@ spring:
     show-sql: true
     properties:
       hibernate:
-        format_sql: true
+        format_sql: true #JPA 구현체인 Hibernate가 동작하며 발생하는 SQL을 포맷핑해 콘솔출력
     generate-ddl: true
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update # create : 매번 테이블 생성을 새로 시도한다, update : 변경이 필요한 경우 alter로 변경되고 테이블이 없는경우 create가 된다
   datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/bookmanager
     username: connectuser
     password: connect123!@#

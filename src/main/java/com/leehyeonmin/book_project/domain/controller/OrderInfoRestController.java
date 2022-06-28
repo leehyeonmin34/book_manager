@@ -21,13 +21,13 @@ public class OrderInfoRestController {
 
 
 
-    @PostMapping("/")
-    public ResponseEntity<OrderInfoDto> addOrderInfo(@RequestBody OrderInfoUpdateRequest orderInfoUpdateRequest){
-        OrderInfoDto orderInfoDtoResponse = orderInfoService.addOrderInfo(orderInfoUpdateRequest);
-        if(orderInfoDtoResponse == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(orderInfoDtoResponse);
-        }
-        return ResponseEntity.status(HttpStatus.ACCEPTED).body(orderInfoDtoResponse);
-    }
+//    @PostMapping("/")
+//    public ResponseEntity<OrderInfoDto> addOrderInfo(@RequestBody OrderInfoUpdateRequest orderInfoUpdateRequest){
+//        OrderInfoDto orderInfoDtoResponse = orderInfoService.addOrderInfo(orderInfoUpdateRequest);
+//        if(orderInfoDtoResponse == null) {
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(orderInfoDtoResponse);
+//        }
+//        return ResponseEntity.status(HttpStatus.ACCEPTED).body(orderInfoDtoResponse);
+//    }
 
 }

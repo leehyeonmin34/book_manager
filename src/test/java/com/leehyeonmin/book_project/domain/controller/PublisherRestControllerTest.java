@@ -57,7 +57,6 @@ public class PublisherRestControllerTest {
         // when
         ResultActions ra = mockMvc.perform(MockMvcRequestBuilders.get("/api/publishers"));
 
-
         // then
         MvcResult result = ra.andExpect(status().isOk()).andReturn();
         PublisherDto.GetListResponse response = new Gson().fromJson(result.getResponse().getContentAsString(), PublisherDto.GetListResponse.class);
